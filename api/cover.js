@@ -41,7 +41,7 @@ export default async function handler(req, res) {
     fs.unlinkSync(file.filepath);
 
     const settingsRaw = await redis.get('settings');
-    const settings = settingsRaw ? (typeof settingsRaw === 'string' ? JSON.parse(settingsRaw) : settingsRaw) : { moderation: '1' };
+    const settings = settingsRaw ? (typeof settingsRaw === 'string' ? JSON.parse(settingsRaw) : settingsRaw) : {};
     const moderation = settings.moderation ?? '1';
 
     if (moderation === '1') {

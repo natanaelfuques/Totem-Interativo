@@ -9,9 +9,16 @@ const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'admin123';
 
 async function getSettings(redis) {
   const raw = await redis.get('settings');
-  const defaults = { moderation: '1', show_count: '-1' };
+  const defaults = {
+    moderation: '1',
+    show_count: '-1',
+    rules: { t1_limit: 5, t1_ttl: 10, t2_limit: 10, t2_ttl: 60, t3_limit: 15, t3_ttl: 720 }
+  };
   if (!raw) return defaults;
-  try { return { ...defaults, ...(typeof raw === 'string' ? JSON.parse(raw) : raw) }; }
+  try {
+    const parsed = typeof raw === 'string' ? JSON.parse(raw) : raw;
+    return { ...defaults, ...parsed, rules: { ...defaults.rules, ...(parsed.rules || {}) } };
+  }
   catch { return defaults; }
 }
 
@@ -31,9 +38,8 @@ export default async function handler(req, res) {
 
   if (req.method === 'GET') {
     if (action === 'get_rules') {
-      const rulesRaw = await redis.get('upload_rules');
-      const rules = rulesRaw ? (typeof rulesRaw === 'string' ? JSON.parse(rulesRaw) : rulesRaw) : null;
-      return res.status(200).json({ rules });
+      const settings = await getSettings(redis);
+      return res.status(200).json({ rules: settings.rules });
     }
     const pending = (await redis.lrange('pending', 0, -1)) || [];
     const photos = (await redis.lrange('photos', 0, -1)) || [];
@@ -121,7 +127,9 @@ export default async function handler(req, res) {
         req.on('data', chunk => data += chunk);
         req.on('end', () => resolve(JSON.parse(data)));
       });
-      await redis.set('upload_rules', JSON.stringify(body));
+      const settings = await getSettings(redis);
+      settings.rules = body;
+      await redis.set('settings', JSON.stringify(settings));
       return res.status(200).json({ success: true });
     }
   }
