@@ -255,7 +255,7 @@
 
   <div class="toggle-row">
     <div>
-      <div class="toggle-label" id="toggle-label">Moderação ativa</div>
+      <div class="toggle-label" id="toggle-label">Moderação ativada</div>
       <div class="toggle-sub" id="toggle-sub">Fotos aguardam aprovação antes de aparecer no totem</div>
     </div>
     <label class="switch">
@@ -454,16 +454,20 @@
     loadPhotos();
   }
 
+  let pauseRefresh = false;
+
   async function toggleModeration() {
     const toggle = document.getElementById('moderation-toggle');
     const val = toggle.checked ? '1' : '0';
+    pauseRefresh = true;
     await fetch(`/api/admin?pwd=${pwd}&action=moderation&value=${val}`, { method: 'POST' });
     updateToggleLabel(toggle.checked);
+    setTimeout(() => pauseRefresh = false, 3000);
   }
 
   function updateToggleLabel(active) {
     document.getElementById('toggle-label').textContent = active
-      ? 'Moderação ativa'
+      ? 'Moderação ativada'
       : 'Moderação desativada';
     document.getElementById('toggle-sub').textContent = active
       ? 'Fotos aguardam aprovação antes de aparecer no totem'
@@ -472,7 +476,7 @@
 
   // Auto-refresh a cada 10s
   setInterval(() => {
-    if (document.getElementById('app').style.display !== 'none') loadPhotos();
+    if (!pauseRefresh && document.getElementById('app').style.display !== 'none') loadPhotos();
   }, 10000);
 </script>
 </body>
