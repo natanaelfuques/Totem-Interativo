@@ -1,8 +1,1 @@
-{
-  "rewrites": [
-    { "source": "/upload", "destination": "/public/upload.html" },
-    { "source": "/totem", "destination": "/public/totem.html" },
-    { "source": "/admin", "destination": "/public/admin.html" }
-  ],
-  "outputDirectory": "public"
-}
+{}
