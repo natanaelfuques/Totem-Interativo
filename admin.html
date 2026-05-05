@@ -423,7 +423,10 @@
       toggle.checked = data.moderation !== false;
       updateToggleLabel(toggle.checked);
       // Atualiza pause (só se não estiver em pausa manual recente)
-      if (!pauseRefresh) updatePauseBtn(data.paused);
+      if (!pauseRefresh) {
+        console.log('loadPhotos updatePauseBtn:', data.paused);
+        updatePauseBtn(data.paused);
+      }
     } catch(e) {
       document.getElementById('login-error').textContent = 'Erro ao conectar';
     }
@@ -640,7 +643,7 @@
     const data = await res.json();
     isPaused = data.paused;
     updatePauseBtn(isPaused);
-    setTimeout(() => pauseRefresh = false, 5000);
+    setTimeout(() => pauseRefresh = false, 35000);
   }
 
   function renderApproved(list) {
@@ -732,7 +735,7 @@
   // Auto-refresh a cada 10s
   setInterval(() => {
     if (!pauseRefresh && document.getElementById('app').style.display !== 'none') loadPhotos();
-  }, 10000);
+  }, 30000);
 </script>
 </body>
 </html>
