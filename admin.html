@@ -422,8 +422,8 @@
       const toggle = document.getElementById('moderation-toggle');
       toggle.checked = data.moderation !== false;
       updateToggleLabel(toggle.checked);
-      // Atualiza pause
-      updatePauseBtn(data.paused);
+      // Atualiza pause (só se não estiver em pausa manual recente)
+      if (!pauseRefresh) updatePauseBtn(data.paused);
     } catch(e) {
       document.getElementById('login-error').textContent = 'Erro ao conectar';
     }
@@ -638,8 +638,9 @@
     pauseRefresh = true;
     const res = await fetch(`/api/admin?pwd=${pwd}&action=pause&value=${val}`, { method: 'POST' });
     const data = await res.json();
-    updatePauseBtn(data.paused);
-    setTimeout(() => pauseRefresh = false, 3000);
+    isPaused = data.paused;
+    updatePauseBtn(isPaused);
+    setTimeout(() => pauseRefresh = false, 5000);
   }
 
   function renderApproved(list) {
