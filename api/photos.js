@@ -21,7 +21,8 @@ export default async function handler(req, res) {
     const settings = await getSettings(redis);
     const photos = (await redis.lrange('photos', 0, -1)) || [];
     const limited = settings.show_count === '1' ? photos.slice(0, 1) : photos;
-    return res.status(200).json({ photos: limited, paused: settings.show_count === '1' });
+    const slideDuration = (settings.rules && settings.rules.slide_duration) ? settings.rules.slide_duration * 1000 : 5000;
+    return res.status(200).json({ photos: limited, paused: settings.show_count === '1', slideDuration });
   } catch (err) {
     return res.status(500).json({ error: err.message, photos: [], paused: false });
   }
