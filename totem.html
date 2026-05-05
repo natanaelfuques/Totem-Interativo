@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=1080, initial-scale=1.0">
   <title>Totem - Fotos do Evento</title>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&display=swap');
@@ -96,18 +96,18 @@
       letter-spacing: -0.3px;
     }
 
-    /* QR code no canto */
+    /* QR code no rodapé direito */
     .qr-wrap {
       position: fixed;
-      top: 32px;
+      bottom: 32px;
       right: 48px;
       z-index: 10;
       text-align: center;
     }
 
     .qr-wrap canvas, .qr-wrap img {
-      width: 120px;
-      height: 120px;
+      width: 140px;
+      height: 140px;
       border-radius: 12px;
       border: 4px solid #fff;
       display: block;
@@ -230,10 +230,6 @@
 
 <div class="overlay">
   <div class="event-name" id="event-name">Nome do Evento</div>
-  <div class="cta">
-    <div class="cta-qr-label">Escaneie e apareça aqui</div>
-    <div class="cta-url" id="upload-url">seu-dominio.vercel.app/upload</div>
-  </div>
 </div>
 
 <div class="qr-wrap">
@@ -247,7 +243,7 @@
   // =============================================
   const CONFIG = {
     eventName: 'Nome do Evento',           // Nome exibido no rodapé
-    uploadUrl: window.location.origin + '/upload', // URL da página de upload
+    uploadUrl: window.location.origin + '/upload.html',
     slideDuration: 5000,                   // Tempo por foto (ms)
     pollInterval: 4000,                    // Intervalo de verificação de novas fotos (ms)
   };
