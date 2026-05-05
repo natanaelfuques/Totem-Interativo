@@ -345,8 +345,9 @@
   }
 
   function rebuildSlides() {
-    // Reconstrói do zero (usado apenas na reordenação)
     const ss = document.getElementById('slideshow');
+    // Mantém o índice atual válido
+    if (currentIndex >= photos.length) currentIndex = 0;
     ss.innerHTML = '';
     photos.forEach((url, i) => {
       const div = document.createElement('div');
@@ -374,22 +375,28 @@
 
   async function poll() {
     const newPhotos = await fetchPhotos();
+    const changed = newPhotos.length !== photos.length ||
+      newPhotos.some((url, i) => url !== photos[i]);
 
-    if (newPhotos.length !== photos.length) {
+    if (changed) {
       const hadPhotos = photos.length > 0;
+      const prevCount = photos.length;
       photos = newPhotos;
       lastCount = photos.length;
-      buildSlides();
+      rebuildSlides();
 
       if (photos.length > 0) {
         document.getElementById('empty').style.display = 'none';
-        if (!hadPhotos) showSlide(0);
+        if (!hadPhotos) {
+          showSlide(0);
+        } else if (photos.length > prevCount) {
+          showNewBadge();
+        }
       } else if (!hadPhotos) {
         document.getElementById('empty').style.display = 'flex';
       }
     }
   }
-
   // Inicia slideshow automático
   function startSlideshow() {
     if (slideInterval) clearInterval(slideInterval);
