@@ -1,0 +1,13 @@
+{
+  "name": "totem-event",
+  "version": "1.0.0",
+  "private": true,
+  "dependencies": {
+    "@vercel/kv": "^2.0.0",
+    "cloudinary": "^2.0.0",
+    "formidable": "^3.5.0"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
