@@ -326,6 +326,27 @@
 
   function buildSlides() {
     const ss = document.getElementById('slideshow');
+    const existing = ss.querySelectorAll('.slide').length;
+    // Só adiciona slides novos, não reconstrói tudo
+    photos.slice(existing).forEach((url, i) => {
+      const div = document.createElement('div');
+      div.className = 'slide';
+      const img = document.createElement('img');
+      img.src = url;
+      img.loading = 'lazy';
+      div.appendChild(img);
+      ss.appendChild(div);
+    });
+    // Se não tinha nenhum, mostra o primeiro
+    if (existing === 0 && photos.length > 0) {
+      ss.querySelector('.slide').classList.add('active');
+    }
+    renderDots();
+  }
+
+  function rebuildSlides() {
+    // Reconstrói do zero (usado apenas na reordenação)
+    const ss = document.getElementById('slideshow');
     ss.innerHTML = '';
     photos.forEach((url, i) => {
       const div = document.createElement('div');
@@ -357,7 +378,6 @@
     if (newPhotos.length !== photos.length) {
       const hadPhotos = photos.length > 0;
       const isNew = newPhotos.length > lastCount;
-      const prevIndex = currentIndex;
       photos = newPhotos;
       lastCount = photos.length;
       buildSlides();
@@ -366,11 +386,10 @@
         document.getElementById('empty').style.display = 'none';
         if (isNew && hadPhotos) {
           showNewBadge();
-          currentIndex = photos.length - 1;
-          showSlide(currentIndex);
+          // Mostra nova foto sem alterar currentIndex para o loop continuar de onde estava
+          const newIndex = photos.length - 1;
+          showSlide(newIndex);
           showNewPhotoWithDoubleTime();
-        } else {
-          showSlide(prevIndex < photos.length ? prevIndex : 0);
         }
       } else if (!hadPhotos) {
         document.getElementById('empty').style.display = 'flex';
@@ -389,10 +408,9 @@
   function showNewPhotoWithDoubleTime() {
     if (slideInterval) clearInterval(slideInterval);
     slideInterval = setTimeout(() => {
-      // Após o tempo extra, continua do próximo slide em sequência normal
       if (photos.length > 1) nextSlide();
       startSlideshow();
-    }, CONFIG.slideDuration * 1.6); // 8s (1.6x de 5s)
+    }, 7000); // 7 segundos para nova foto
   }
 
   // Boot
