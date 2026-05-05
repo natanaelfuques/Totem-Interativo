@@ -33,12 +33,25 @@
       align-items: center;
       justify-content: center;
       background: #000;
+      overflow: hidden;
     }
 
     .slide.active { opacity: 1; }
     .slide.prev { opacity: 0; }
 
+    .slide-bg {
+      position: absolute;
+      inset: -20px;
+      background-size: cover;
+      background-position: center;
+      filter: blur(24px) brightness(0.5) saturate(1.4);
+      transform: scale(1.1);
+      z-index: 0;
+    }
+
     .slide img {
+      position: relative;
+      z-index: 1;
       width: 100%;
       height: 100%;
       object-fit: contain;
@@ -54,6 +67,7 @@
         rgba(0,0,0,0.7) 100%
       );
       pointer-events: none;
+      z-index: 2;
     }
 
     /* Overlay info */
@@ -346,40 +360,33 @@
     showSlide((currentIndex + 1) % photos.length);
   }
 
+  function makeSlide(url, active) {
+    const div = document.createElement('div');
+    div.className = 'slide' + (active ? ' active' : '');
+    const bg = document.createElement('div');
+    bg.className = 'slide-bg';
+    bg.style.backgroundImage = `url(${url})`;
+    const img = document.createElement('img');
+    img.src = url;
+    img.loading = 'lazy';
+    div.appendChild(bg);
+    div.appendChild(img);
+    return div;
+  }
+
   function buildSlides() {
     const ss = document.getElementById('slideshow');
     const existing = ss.querySelectorAll('.slide').length;
-    // Só adiciona slides novos, não reconstrói tudo
-    photos.slice(existing).forEach((url, i) => {
-      const div = document.createElement('div');
-      div.className = 'slide';
-      const img = document.createElement('img');
-      img.src = url;
-      img.loading = 'lazy';
-      div.appendChild(img);
-      ss.appendChild(div);
-    });
-    // Se não tinha nenhum, mostra o primeiro
-    if (existing === 0 && photos.length > 0) {
-      ss.querySelector('.slide').classList.add('active');
-    }
+    photos.slice(existing).forEach((url) => ss.appendChild(makeSlide(url, false)));
+    if (existing === 0 && photos.length > 0) ss.querySelector('.slide').classList.add('active');
     renderDots();
   }
 
   function rebuildSlides() {
     const ss = document.getElementById('slideshow');
-    // Mantém o índice atual válido
     if (currentIndex >= photos.length) currentIndex = 0;
     ss.innerHTML = '';
-    photos.forEach((url, i) => {
-      const div = document.createElement('div');
-      div.className = 'slide' + (i === currentIndex ? ' active' : '');
-      const img = document.createElement('img');
-      img.src = url;
-      img.loading = 'lazy';
-      div.appendChild(img);
-      ss.appendChild(div);
-    });
+    photos.forEach((url, i) => ss.appendChild(makeSlide(url, i === currentIndex)));
     renderDots();
   }
 
