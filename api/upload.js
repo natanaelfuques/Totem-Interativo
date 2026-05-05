@@ -16,8 +16,6 @@ const redis = new Redis({
   token: process.env.KV_REST_API_TOKEN,
 });
 
-const PHOTO_LIMIT = 10;
-
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
 
@@ -26,12 +24,29 @@ export default async function handler(req, res) {
   }
 
   try {
-    // Limite por IP
     const ip = req.headers['x-forwarded-for']?.split(',')[0]?.trim() || req.socket.remoteAddress || 'unknown';
     const ipKey = `ip:${ip}`;
-    const ipCount = (await redis.get(ipKey)) || 0;
-    if (Number(ipCount) >= PHOTO_LIMIT) {
-      return res.status(429).json({ error: 'Limite atingido', limitReached: true });
+
+    // Verifica whitelist — IPs livres não têm limite
+    const whitelisted = await redis.hexists('whitelist_ips', ip);
+    if (!whitelisted) {
+      const ipCount = Number((await redis.get(ipKey)) || 0);
+
+      if (ipCount >= 14) {
+        await redis.hset('blocked_ips', { [ip]: Date.now() });
+        return res.status(429).json({ error: 'Limite atingido', limitReached: true });
+      }
+
+      // Incrementa e define TTL
+      const newCount = ipCount + 1;
+      await redis.incr(ipKey);
+      if (newCount <= 5) {
+        await redis.expire(ipKey, 10 * 60);
+      } else if (newCount <= 10) {
+        await redis.expire(ipKey, 60 * 60);
+      } else {
+        await redis.expire(ipKey, 12 * 60 * 60);
+      }
     }
 
     const form = formidable({ maxFileSize: 10 * 1024 * 1024 });
@@ -59,10 +74,6 @@ export default async function handler(req, res) {
       await redis.rpush('photos', result.secure_url);
       await redis.ltrim('photos', -50, -1);
     }
-
-    // Incrementa contador do IP (expira em 24h)
-    await redis.incr(ipKey);
-    await redis.expire(ipKey, 86400);
 
     return res.status(200).json({ success: true, url: result.secure_url, moderation: moderation === '1' });
 

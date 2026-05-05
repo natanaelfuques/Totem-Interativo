@@ -27,7 +27,11 @@ export default async function handler(req, res) {
     const flagged = (await redis.lrange('flagged', 0, -1)) || [];
     const moderation = (await redis.get('moderation')) ?? '1';
     const paused = (await redis.get('paused')) ?? '0';
-    return res.status(200).json({ pending, photos, flagged, moderation: moderation === '1', paused: paused === '1' });
+    const blockedRaw = (await redis.hgetall('blocked_ips')) || {};
+    const blocked = Object.entries(blockedRaw).map(([ip, ts]) => ({ ip, ts: Number(ts) }));
+    const whitelistRaw = (await redis.hgetall('whitelist_ips')) || {};
+    const whitelist = Object.keys(whitelistRaw);
+    return res.status(200).json({ pending, photos, flagged, moderation: moderation === '1', paused: paused === '1', blocked, whitelist });
   }
 
   if (req.method === 'POST') {
@@ -57,6 +61,7 @@ export default async function handler(req, res) {
       await redis.del('photos');
       await redis.del('pending');
       await redis.del('flagged');
+      await redis.del('blocked_ips');
       return res.status(200).json({ success: true });
     }
 
@@ -83,6 +88,31 @@ export default async function handler(req, res) {
       const val = req.query.value === '1' ? '1' : '0';
       await redis.set('paused', val);
       return res.status(200).json({ success: true, paused: val === '1' });
+    }
+
+    if (action === 'unblock' && url) {
+      await redis.hdel('blocked_ips', url);
+      await redis.del(`ip:${url}`);
+      return res.status(200).json({ success: true });
+    }
+
+    if (action === 'whitelist' && url) {
+      await redis.hset('whitelist_ips', { [url]: Date.now() });
+      await redis.hdel('blocked_ips', url);
+      await redis.del(`ip:${url}`);
+      return res.status(200).json({ success: true });
+    }
+
+    if (action === 'unwhitelist' && url) {
+      await redis.hdel('whitelist_ips', url);
+      return res.status(200).json({ success: true });
+    }
+
+    if (action === 'REMOVE_THIS_DUPLICATE' && url) {
+      // url aqui é o IP a ser desbloqueado
+      await redis.hdel('blocked_ips', url);
+      await redis.del(`ip:${url}`);
+      return res.status(200).json({ success: true });
     }
   }
 
