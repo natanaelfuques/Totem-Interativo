@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin - Moderação</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@300;400;500&display=swap');
+
+    :root {
+      --bg: #0a0a0f;
+      --card: #13131a;
+      --accent: #ff3c6e;
+      --green: #22c55e;
+      --red: #ef4444;
+      --text: #f0f0f5;
+      --muted: #6b6b80;
+      --border: rgba(255,255,255,0.08);
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 32px 24px;
+    }
+
+    h1 {
+      font-family: 'Syne', sans-serif;
+      font-size: 28px;
+      font-weight: 800;
+      margin-bottom: 8px;
+    }
+
+    .subtitle { color: var(--muted); font-size: 14px; margin-bottom: 32px; }
+
+    #login {
+      max-width: 360px;
+      margin: 80px auto;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 32px;
+      text-align: center;
+    }
+
+    #login h2 { font-family: 'Syne', sans-serif; font-size: 22px; margin-bottom: 20px; }
+
+    input[type="password"] {
+      width: 100%;
+      padding: 12px 16px;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      color: var(--text);
+      font-size: 15px;
+      margin-bottom: 12px;
+      outline: none;
+    }
+
+    input[type="password"]:focus { border-color: var(--accent); }
+
+    button {
+      padding: 12px 24px;
+      border: none;
+      border-radius: 10px;
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-primary { background: var(--accent); color: #fff; width: 100%; }
+    .btn-approve { background: var(--green); color: #fff; }
+    .btn-reject { background: rgba(239,68,68,0.15); color: var(--red); border: 1px solid rgba(239,68,68,0.3); }
+    .btn-delete { background: rgba(239,68,68,0.1); color: var(--red); border: 1px solid rgba(239,68,68,0.2); font-size: 12px; padding: 6px 12px; }
+    .btn-clear { background: rgba(239,68,68,0.1); color: var(--red); border: 1px solid rgba(239,68,68,0.3); }
+
+    button:hover { opacity: 0.85; transform: translateY(-1px); }
+
+    #app { display: none; max-width: 1200px; margin: 0 auto; }
+
+    .header-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 32px;
+      flex-wrap: gap;
+      gap: 12px;
+    }
+
+    .section-title {
+      font-family: 'Syne', sans-serif;
+      font-size: 16px;
+      font-weight: 700;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .badge {
+      background: var(--accent);
+      color: #fff;
+      font-size: 11px;
+      padding: 2px 8px;
+      border-radius: 99px;
+    }
+
+    .badge.green { background: var(--green); }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 16px;
+      margin-bottom: 48px;
+    }
+
+    .photo-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      overflow: hidden;
+    }
+
+    .photo-card img {
+      width: 100%;
+      height: 180px;
+      object-fit: cover;
+      display: block;
+    }
+
+    .photo-actions {
+      padding: 12px;
+      display: flex;
+      gap: 8px;
+    }
+
+    .empty {
+      color: var(--muted);
+      font-size: 14px;
+      padding: 24px;
+      background: var(--card);
+      border-radius: 12px;
+      border: 1px dashed var(--border);
+      text-align: center;
+      margin-bottom: 48px;
+    }
+
+    .error { color: var(--accent); font-size: 13px; margin-top: 8px; }
+  </style>
+</head>
+<body>
+
+<div id="login">
+  <h2>🔐 Admin</h2>
+  <input type="password" id="pwd" placeholder="Senha" onkeydown="if(event.key==='Enter') doLogin()" />
+  <button class="btn-primary" onclick="doLogin()">Entrar</button>
+  <div class="error" id="login-error"></div>
+</div>
+
+<div id="app">
+  <div class="header-row">
+    <div>
+      <h1>Moderação de Fotos</h1>
+      <div class="subtitle">Aprove as fotos para exibir no totem</div>
+    </div>
+    <button class="btn-clear" onclick="clearAll()">🗑 Limpar tudo</button>
+  </div>
+
+  <div class="section-title">
+    Aguardando aprovação
+    <span class="badge" id="pending-count">0</span>
+  </div>
+  <div id="pending-grid" class="grid"></div>
+
+  <div class="section-title">
+    No totem
+    <span class="badge green" id="approved-count">0</span>
+  </div>
+  <div id="approved-grid" class="grid"></div>
+</div>
+
+<script>
+  let pwd = '';
+
+  function doLogin() {
+    pwd = document.getElementById('pwd').value;
+    loadPhotos();
+  }
+
+  async function loadPhotos() {
+    try {
+      const res = await fetch(`/api/admin?pwd=${pwd}`);
+      if (res.status === 401) {
+        document.getElementById('login-error').textContent = 'Senha incorreta';
+        return;
+      }
+      const data = await res.json();
+      document.getElementById('login').style.display = 'none';
+      document.getElementById('app').style.display = 'block';
+      renderPending(data.pending || []);
+      renderApproved(data.photos || []);
+    } catch(e) {
+      document.getElementById('login-error').textContent = 'Erro ao conectar';
+    }
+  }
+
+  function renderPending(list) {
+    document.getElementById('pending-count').textContent = list.length;
+    const grid = document.getElementById('pending-grid');
+    if (list.length === 0) {
+      grid.innerHTML = '<div class="empty">Nenhuma foto aguardando aprovação</div>';
+      return;
+    }
+    grid.innerHTML = list.map(url => `
+      <div class="photo-card">
+        <img src="${url}" loading="lazy" />
+        <div class="photo-actions">
+          <button class="btn-approve" onclick="approve('${url}')">✓ Aprovar</button>
+          <button class="btn-reject" onclick="reject('${url}')">✕ Rejeitar</button>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  function renderApproved(list) {
+    document.getElementById('approved-count').textContent = list.length;
+    const grid = document.getElementById('approved-grid');
+    if (list.length === 0) {
+      grid.innerHTML = '<div class="empty">Nenhuma foto aprovada ainda</div>';
+      return;
+    }
+    grid.innerHTML = list.map(url => `
+      <div class="photo-card">
+        <img src="${url}" loading="lazy" />
+        <div class="photo-actions">
+          <button class="btn-delete" onclick="deletePhoto('${url}')">🗑 Remover</button>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  async function approve(url) {
+    await fetch(`/api/admin?pwd=${pwd}&action=approve&url=${encodeURIComponent(url)}`, { method: 'POST' });
+    loadPhotos();
+  }
+
+  async function reject(url) {
+    await fetch(`/api/admin?pwd=${pwd}&action=reject&url=${encodeURIComponent(url)}`, { method: 'POST' });
+    loadPhotos();
+  }
+
+  async function deletePhoto(url) {
+    await fetch(`/api/admin?pwd=${pwd}&action=delete&url=${encodeURIComponent(url)}`, { method: 'POST' });
+    loadPhotos();
+  }
+
+  async function clearAll() {
+    if (!confirm('Apagar todas as fotos e pendentes?')) return;
+    await fetch(`/api/admin?pwd=${pwd}&action=clear`, { method: 'POST' });
+    loadPhotos();
+  }
+
+  // Auto-refresh a cada 10s
+  setInterval(() => {
+    if (document.getElementById('app').style.display !== 'none') loadPhotos();
+  }, 10000);
+</script>
+</body>
+</html>
