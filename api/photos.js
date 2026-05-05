@@ -14,9 +14,10 @@ export default async function handler(req, res) {
   res.setHeader('Vercel-CDN-Cache-Control', 'no-store');
 
   try {
-    const paused = (await redis.get('paused')) ?? '0';
+    const showCount = await redis.get('show_count');
     const photos = (await redis.lrange('photos', 0, -1)) || [];
-    return res.status(200).json({ photos, paused: paused === '1' });
+    const limited = showCount && Number(showCount) > 0 ? photos.slice(0, Number(showCount)) : photos;
+    return res.status(200).json({ photos: limited, paused: showCount === '1' });
   } catch (err) {
     return res.status(500).json({ error: err.message, photos: [], paused: false });
   }

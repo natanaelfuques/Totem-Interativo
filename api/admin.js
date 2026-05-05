@@ -31,12 +31,12 @@ export default async function handler(req, res) {
     const photos = (await redis.lrange('photos', 0, -1)) || [];
     const flagged = (await redis.lrange('flagged', 0, -1)) || [];
     const moderation = (await redis.get('moderation')) ?? '1';
-    const paused = (await redis.get('paused')) ?? '0';
+    const paused = (await redis.get('show_count')) === '1';
     const blockedRaw = (await redis.hgetall('blocked_ips')) || {};
     const blocked = Object.entries(blockedRaw).map(([ip, ts]) => ({ ip, ts: Number(ts) }));
     const whitelistRaw = (await redis.hgetall('whitelist_ips')) || {};
     const whitelist = Object.keys(whitelistRaw);
-    return res.status(200).json({ pending, photos, flagged, moderation: moderation === '1', paused: paused === '1', blocked, whitelist });
+    return res.status(200).json({ pending, photos, flagged, moderation: moderation === '1', paused: paused, blocked, whitelist });
   }
 
   if (req.method === 'POST') {
@@ -90,8 +90,8 @@ export default async function handler(req, res) {
     }
 
     if (action === 'pause') {
-      const val = req.query.value === '1' ? '1' : '0';
-      await redis.set('paused', val);
+      const val = req.query.value === '1' ? '1' : '-1';
+      await redis.set('show_count', val);
       return res.status(200).json({ success: true, paused: val === '1' });
     }
 
