@@ -386,6 +386,15 @@
           </div>
         </div>
       </div>
+      <div style="background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:12px;padding:16px">
+        <div style="font-size:13px;font-weight:600;margin-bottom:12px;color:var(--text)">Troca de imagem</div>
+        <div style="display:flex;gap:10px;align-items:center">
+          <div style="flex:1">
+            <div style="font-size:11px;color:var(--muted);margin-bottom:4px">Segundos por foto</div>
+            <input id="slide_duration" type="number" min="1" max="60" style="width:100%;padding:8px;background:rgba(255,255,255,0.05);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:14px" />
+          </div>
+        </div>
+      </div>
     </div>
 
     <div style="display:flex;gap:8px;margin-top:20px">
@@ -544,6 +553,7 @@
         document.getElementById('t2_ttl').value = data.rules.t2_ttl ?? 60;
         document.getElementById('t3_limit').value = data.rules.t3_limit ?? 15;
         document.getElementById('t3_ttl').value = data.rules.t3_ttl ?? 720;
+        document.getElementById('slide_duration').value = data.rules.slide_duration ?? 5;
       } else {
         document.getElementById('t1_limit').value = 5;
         document.getElementById('t1_ttl').value = 10;
@@ -551,6 +561,7 @@
         document.getElementById('t2_ttl').value = 60;
         document.getElementById('t3_limit').value = 15;
         document.getElementById('t3_ttl').value = 720;
+        document.getElementById('slide_duration').value = 5;
       }
     } catch {}
   }
@@ -567,6 +578,7 @@
       t2_ttl:   Number(document.getElementById('t2_ttl').value),
       t3_limit: Number(document.getElementById('t3_limit').value),
       t3_ttl:   Number(document.getElementById('t3_ttl').value),
+      slide_duration: Number(document.getElementById('slide_duration').value),
     };
     await fetch(`/api/admin?pwd=${pwd}&action=save_rules`, {
       method: 'POST',
