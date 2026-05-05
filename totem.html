@@ -307,8 +307,9 @@
       paused = !!data.paused;
 
       if (paused && !wasPaused) {
-        // Acabou de pausar — para o slideshow
+        // Acabou de pausar — para o slideshow e vai para a primeira foto
         if (slideInterval) { clearInterval(slideInterval); slideInterval = null; }
+        if (photos.length > 0) showSlide(0);
       } else if (!paused && wasPaused) {
         // Acabou de retomar — reinicia
         startSlideshow();
