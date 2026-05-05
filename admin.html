@@ -423,10 +423,7 @@
       toggle.checked = data.moderation !== false;
       updateToggleLabel(toggle.checked);
       // Atualiza pause (só se não estiver em pausa manual recente)
-      if (!pauseRefresh) {
-        console.log('loadPhotos updatePauseBtn:', data.paused);
-        updatePauseBtn(data.paused);
-      }
+      if (!pauseRefresh) updatePauseBtn(data.paused);
     } catch(e) {
       document.getElementById('login-error').textContent = 'Erro ao conectar';
     }
