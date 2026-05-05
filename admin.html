@@ -413,6 +413,8 @@
     await fetch(`/api/admin?pwd=${pwd}&action=unwhitelist&url=${encodeURIComponent(ip)}`, { method: 'POST' });
     loadPhotos();
   }
+
+  function renderFlagged(flagged, photos) {
     const section = document.getElementById('flagged-section');
     const grid = document.getElementById('flagged-grid');
     const count = document.getElementById('flagged-count');
