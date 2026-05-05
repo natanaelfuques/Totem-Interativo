@@ -389,9 +389,10 @@
   function showNewPhotoWithDoubleTime() {
     if (slideInterval) clearInterval(slideInterval);
     slideInterval = setTimeout(() => {
-      startSlideshow();
+      // Após o tempo extra, continua do próximo slide em sequência normal
       if (photos.length > 1) nextSlide();
-    }, CONFIG.slideDuration * 2);
+      startSlideshow();
+    }, CONFIG.slideDuration * 1.6); // 8s (1.6x de 5s)
   }
 
   // Boot
