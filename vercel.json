@@ -1,1 +1,16 @@
-{}
+{
+  "rewrites": [
+    { "source": "/upload", "destination": "/upload.html" },
+    { "source": "/totem", "destination": "/totem.html" },
+    { "source": "/admin", "destination": "/admin.html" }
+  ],
+  "headers": [
+    {
+      "source": "/api/(.*)",
+      "headers": [
+        { "key": "Cache-Control", "value": "no-store, no-cache, must-revalidate" },
+        { "key": "Pragma", "value": "no-cache" }
+      ]
+    }
+  ]
+}
