@@ -760,7 +760,7 @@
     pauseRefresh = true;
     await fetch(`/api/admin?pwd=${pwd}&action=moderation&value=${val}`, { method: 'POST' });
     updateToggleLabel(toggle.checked);
-    setTimeout(() => pauseRefresh = false, 3000);
+    setTimeout(() => pauseRefresh = false, 31000);
   }
 
   function updateToggleLabel(active) {
@@ -774,7 +774,7 @@
   // Auto-refresh a cada 10s
   setInterval(() => {
     if (!pauseRefresh && document.getElementById('app').style.display !== 'none') loadPhotos();
-  }, 30000);
+  }, 10000);
 </script>
 </body>
 </html>
