@@ -377,20 +377,13 @@
 
     if (newPhotos.length !== photos.length) {
       const hadPhotos = photos.length > 0;
-      const isNew = newPhotos.length > lastCount;
       photos = newPhotos;
       lastCount = photos.length;
       buildSlides();
 
       if (photos.length > 0) {
         document.getElementById('empty').style.display = 'none';
-        if (isNew && hadPhotos) {
-          showNewBadge();
-          // Mostra nova foto sem alterar currentIndex para o loop continuar de onde estava
-          const newIndex = photos.length - 1;
-          showSlide(newIndex);
-          showNewPhotoWithDoubleTime();
-        }
+        if (!hadPhotos) showSlide(0);
       } else if (!hadPhotos) {
         document.getElementById('empty').style.display = 'flex';
       }
@@ -403,14 +396,6 @@
     slideInterval = setInterval(() => {
       if (photos.length > 1) nextSlide();
     }, CONFIG.slideDuration);
-  }
-
-  function showNewPhotoWithDoubleTime() {
-    if (slideInterval) clearInterval(slideInterval);
-    slideInterval = setTimeout(() => {
-      if (photos.length > 1) nextSlide();
-      startSlideshow();
-    }, 7000); // 7 segundos para nova foto
   }
 
   // Boot
