@@ -433,10 +433,12 @@
       renderApproved(data.photos || []);
       renderFlagged(data.flagged || [], data.photos || []);
       renderBlocked(data.blocked || [], data.whitelist || []);
-      // Atualiza toggle
-      const toggle = document.getElementById('moderation-toggle');
-      toggle.checked = data.moderation !== false;
-      updateToggleLabel(toggle.checked);
+      // Atualiza toggle (só se não estiver em operação recente)
+      if (!pauseRefresh) {
+        const toggle = document.getElementById('moderation-toggle');
+        toggle.checked = data.moderation !== false;
+        updateToggleLabel(toggle.checked);
+      }
       // Atualiza pause (só se não estiver em pausa manual recente)
       if (!pauseRefresh) updatePauseBtn(data.paused);
     } catch(e) {
@@ -511,7 +513,9 @@
         statusEl.style.color = 'var(--green)';
         statusEl.textContent = 'Foto de capa enviada ✓';
         setTimeout(() => { statusEl.textContent = ''; statusEl.style.color = ''; }, 3000);
+        pauseRefresh = true;
         loadPhotos();
+        setTimeout(() => pauseRefresh = false, 31000);
       } else throw new Error(data.error);
     } catch (err) {
       statusEl.style.color = 'var(--accent)';
