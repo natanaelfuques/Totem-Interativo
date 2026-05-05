@@ -255,7 +255,7 @@
 
   <div class="toggle-row">
     <div>
-      <div class="toggle-label">Moderação ativa</div>
+      <div class="toggle-label" id="toggle-label">Moderação ativa</div>
       <div class="toggle-sub" id="toggle-sub">Fotos aguardam aprovação antes de aparecer no totem</div>
     </div>
     <label class="switch">
@@ -462,9 +462,12 @@
   }
 
   function updateToggleLabel(active) {
+    document.getElementById('toggle-label').textContent = active
+      ? 'Moderação ativa'
+      : 'Moderação desativada';
     document.getElementById('toggle-sub').textContent = active
       ? 'Fotos aguardam aprovação antes de aparecer no totem'
-      : 'Moderação desativada';
+      : 'Fotos aparecem no totem automaticamente';
   }
 
   // Auto-refresh a cada 10s
