@@ -22,6 +22,11 @@ export default async function handler(req, res) {
   const { action, url } = req.query;
 
   if (req.method === 'GET') {
+    if (action === 'get_rules') {
+      const rulesRaw = await redis.get('upload_rules');
+      const rules = rulesRaw ? JSON.parse(rulesRaw) : null;
+      return res.status(200).json({ rules });
+    }
     const pending = (await redis.lrange('pending', 0, -1)) || [];
     const photos = (await redis.lrange('photos', 0, -1)) || [];
     const flagged = (await redis.lrange('flagged', 0, -1)) || [];
@@ -108,10 +113,13 @@ export default async function handler(req, res) {
       return res.status(200).json({ success: true });
     }
 
-    if (action === 'REMOVE_THIS_DUPLICATE' && url) {
-      // url aqui é o IP a ser desbloqueado
-      await redis.hdel('blocked_ips', url);
-      await redis.del(`ip:${url}`);
+    if (action === 'save_rules') {
+      const body = await new Promise((resolve) => {
+        let data = '';
+        req.on('data', chunk => data += chunk);
+        req.on('end', () => resolve(JSON.parse(data)));
+      });
+      await redis.set('upload_rules', JSON.stringify(body));
       return res.status(200).json({ success: true });
     }
   }

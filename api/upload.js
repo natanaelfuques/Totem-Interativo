@@ -27,25 +27,28 @@ export default async function handler(req, res) {
     const ip = req.headers['x-forwarded-for']?.split(',')[0]?.trim() || req.socket.remoteAddress || 'unknown';
     const ipKey = `ip:${ip}`;
 
+    // Carrega regras configuráveis (ou usa padrão)
+    const rulesRaw = await redis.get('upload_rules');
+    const rules = rulesRaw ? JSON.parse(rulesRaw) : { t1_limit: 5, t1_ttl: 10, t2_limit: 10, t2_ttl: 60, t3_limit: 15, t3_ttl: 720 };
+
     // Verifica whitelist — IPs livres não têm limite
     const whitelisted = await redis.hexists('whitelist_ips', ip);
     if (!whitelisted) {
       const ipCount = Number((await redis.get(ipKey)) || 0);
 
-      if (ipCount >= 14) {
+      if (ipCount >= rules.t3_limit - 1) {
         await redis.hset('blocked_ips', { [ip]: Date.now() });
         return res.status(429).json({ error: 'Limite atingido', limitReached: true });
       }
 
-      // Incrementa e define TTL
       const newCount = ipCount + 1;
       await redis.incr(ipKey);
-      if (newCount <= 5) {
-        await redis.expire(ipKey, 10 * 60);
-      } else if (newCount <= 10) {
-        await redis.expire(ipKey, 60 * 60);
+      if (newCount <= rules.t1_limit) {
+        await redis.expire(ipKey, rules.t1_ttl * 60);
+      } else if (newCount <= rules.t2_limit) {
+        await redis.expire(ipKey, rules.t2_ttl * 60);
       } else {
-        await redis.expire(ipKey, 12 * 60 * 60);
+        await redis.expire(ipKey, rules.t3_ttl * 60);
       }
     }
 
