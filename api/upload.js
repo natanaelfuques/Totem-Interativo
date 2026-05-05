@@ -41,9 +41,18 @@ export default async function handler(req, res) {
 
     fs.unlinkSync(file.filepath);
 
-    // Salva na fila de pendentes (aguarda moderação)
-    await redis.rpush('pending', result.secure_url);
-    await redis.ltrim('pending', -100, -1);
+    // Verifica se moderação está ativa
+    const moderation = (await redis.get('moderation')) ?? '1';
+
+    if (moderation === '1') {
+      // Moderação ativa: vai para fila de pendentes
+      await redis.rpush('pending', result.secure_url);
+      await redis.ltrim('pending', -100, -1);
+    } else {
+      // Moderação desativada: vai direto para o totem
+      await redis.rpush('photos', result.secure_url);
+      await redis.ltrim('photos', -50, -1);
+    }
 
     return res.status(200).json({ success: true, url: result.secure_url });
 

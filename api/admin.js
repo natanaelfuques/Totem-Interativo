@@ -15,18 +15,17 @@ export default async function handler(req, res) {
 
   if (req.method === 'OPTIONS') return res.status(200).end();
 
-  // Autenticação simples via query param
   if (req.query.pwd !== ADMIN_PASSWORD) {
     return res.status(401).json({ error: 'Não autorizado' });
   }
 
   const { action, url } = req.query;
 
-  // Lista pendentes e aprovadas
   if (req.method === 'GET') {
     const pending = (await redis.lrange('pending', 0, -1)) || [];
     const photos = (await redis.lrange('photos', 0, -1)) || [];
-    return res.status(200).json({ pending, photos });
+    const moderation = (await redis.get('moderation')) ?? '1'; // '1' = moderação ativa
+    return res.status(200).json({ pending, photos, moderation: moderation === '1' });
   }
 
   if (req.method === 'POST') {
@@ -51,6 +50,12 @@ export default async function handler(req, res) {
       await redis.del('photos');
       await redis.del('pending');
       return res.status(200).json({ success: true });
+    }
+
+    if (action === 'moderation') {
+      const val = req.query.value === '1' ? '1' : '0';
+      await redis.set('moderation', val);
+      return res.status(200).json({ success: true, moderation: val === '1' });
     }
   }
 
