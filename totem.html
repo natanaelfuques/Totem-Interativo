@@ -242,7 +242,7 @@
   // CONFIGURAÇÕES — edite aqui
   // =============================================
   const CONFIG = {
-    eventName: '15 anos',           // Nome exibido no rodapé
+    eventName: 'Nome do Evento',           // Nome exibido no rodapé
     uploadUrl: window.location.origin + '/upload.html',
     slideDuration: 5000,                   // Tempo por foto (ms)
     pollInterval: 4000,                    // Intervalo de verificação de novas fotos (ms)
@@ -250,11 +250,10 @@
   // =============================================
 
   document.getElementById('event-name').textContent = CONFIG.eventName;
-  document.getElementById('upload-url').textContent = CONFIG.uploadUrl.replace('https://','');
 
   // Gera QR code via API gratuita
   document.getElementById('qr-img').src =
-    `https://api.qrserver.com/v1/create-qr-code/?size=240x240&data=${encodeURIComponent(CONFIG.uploadUrl)}&bgcolor=ffffff&color=000000&qzone=1`;
+    `https://quickchart.io/qr?text=${encodeURIComponent(CONFIG.uploadUrl)}&size=240&margin=2`;
 
   let photos = [];
   let currentIndex = 0;
