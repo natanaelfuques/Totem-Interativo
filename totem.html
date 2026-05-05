@@ -357,6 +357,7 @@
     if (newPhotos.length !== photos.length) {
       const hadPhotos = photos.length > 0;
       const isNew = newPhotos.length > lastCount;
+      const prevIndex = currentIndex;
       photos = newPhotos;
       lastCount = photos.length;
       buildSlides();
@@ -365,15 +366,15 @@
         document.getElementById('empty').style.display = 'none';
         if (isNew && hadPhotos) {
           showNewBadge();
-          showSlide(photos.length - 1);
+          currentIndex = photos.length - 1;
+          showSlide(currentIndex);
+          showNewPhotoWithDoubleTime();
         } else {
-          showSlide(currentIndex < photos.length ? currentIndex : 0);
+          showSlide(prevIndex < photos.length ? prevIndex : 0);
         }
       } else if (!hadPhotos) {
-        // Só mostra estado vazio se nunca teve fotos
         document.getElementById('empty').style.display = 'flex';
       }
-      // Se tinha fotos e agora não tem (erro de rede ou lista vazia momentânea), mantém o último slide visível
     }
   }
 
@@ -383,6 +384,14 @@
     slideInterval = setInterval(() => {
       if (photos.length > 1) nextSlide();
     }, CONFIG.slideDuration);
+  }
+
+  function showNewPhotoWithDoubleTime() {
+    if (slideInterval) clearInterval(slideInterval);
+    slideInterval = setTimeout(() => {
+      startSlideshow();
+      if (photos.length > 1) nextSlide();
+    }, CONFIG.slideDuration * 2);
   }
 
   // Boot
