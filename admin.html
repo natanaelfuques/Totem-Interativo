@@ -134,7 +134,14 @@
       border: 1px solid var(--border);
       border-radius: 16px;
       overflow: hidden;
+      cursor: grab;
+      transition: transform 0.15s, box-shadow 0.15s;
+      user-select: none;
     }
+
+    .photo-card:active { cursor: grabbing; }
+    .photo-card.dragging { opacity: 0.4; transform: scale(0.97); }
+    .photo-card.drag-over { box-shadow: 0 0 0 2px var(--accent); transform: scale(1.02); }
 
     .photo-card img {
       width: 100%;
@@ -339,8 +346,8 @@
       grid.innerHTML = '<div class="empty">Nenhuma foto aprovada ainda</div>';
       return;
     }
-    grid.innerHTML = list.map(url => `
-      <div class="photo-card">
+    grid.innerHTML = list.map((url, i) => `
+      <div class="photo-card" draggable="true" data-url="${url}" data-index="${i}">
         <img src="${url}" loading="lazy" />
         <div class="photo-actions">
           <button class="btn-delete" onclick="deletePhoto('${url}')">
@@ -350,6 +357,32 @@
         </div>
       </div>
     `).join('');
+
+    // Drag and drop
+    let dragSrc = null;
+    grid.querySelectorAll('.photo-card').forEach(card => {
+      card.addEventListener('dragstart', () => { dragSrc = card; card.classList.add('dragging'); });
+      card.addEventListener('dragend', () => card.classList.remove('dragging'));
+      card.addEventListener('dragover', e => { e.preventDefault(); card.classList.add('drag-over'); });
+      card.addEventListener('dragleave', () => card.classList.remove('drag-over'));
+      card.addEventListener('drop', async e => {
+        e.preventDefault();
+        card.classList.remove('drag-over');
+        if (dragSrc === card) return;
+        const cards = [...grid.querySelectorAll('.photo-card')];
+        const from = cards.indexOf(dragSrc);
+        const to = cards.indexOf(card);
+        cards.splice(from, 1);
+        cards.splice(to, 0, dragSrc);
+        cards.forEach(c => grid.appendChild(c));
+        const newOrder = [...grid.querySelectorAll('.photo-card')].map(c => c.dataset.url);
+        await fetch(`/api/admin?pwd=${pwd}&action=reorder`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ photos: newOrder })
+        });
+      });
+    });
   }
 
   async function approve(url) {
