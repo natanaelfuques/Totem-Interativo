@@ -26,7 +26,8 @@ export default async function handler(req, res) {
     const photos = (await redis.lrange('photos', 0, -1)) || [];
     const flagged = (await redis.lrange('flagged', 0, -1)) || [];
     const moderation = (await redis.get('moderation')) ?? '1';
-    return res.status(200).json({ pending, photos, flagged, moderation: moderation === '1' });
+    const paused = (await redis.get('paused')) ?? '0';
+    return res.status(200).json({ pending, photos, flagged, moderation: moderation === '1', paused: paused === '1' });
   }
 
   if (req.method === 'POST') {
@@ -76,6 +77,12 @@ export default async function handler(req, res) {
       const val = req.query.value === '1' ? '1' : '0';
       await redis.set('moderation', val);
       return res.status(200).json({ success: true, moderation: val === '1' });
+    }
+
+    if (action === 'pause') {
+      const val = req.query.value === '1' ? '1' : '0';
+      await redis.set('paused', val);
+      return res.status(200).json({ success: true, paused: val === '1' });
     }
   }
 

@@ -1,4 +1,3 @@
-// api/upload.js — Vercel Serverless Function
 import { v2 as cloudinary } from 'cloudinary';
 import { Redis } from '@upstash/redis';
 import formidable from 'formidable';
@@ -17,6 +16,8 @@ const redis = new Redis({
   token: process.env.KV_REST_API_TOKEN,
 });
 
+const PHOTO_LIMIT = 10;
+
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
 
@@ -25,6 +26,14 @@ export default async function handler(req, res) {
   }
 
   try {
+    // Limite por IP
+    const ip = req.headers['x-forwarded-for']?.split(',')[0]?.trim() || req.socket.remoteAddress || 'unknown';
+    const ipKey = `ip:${ip}`;
+    const ipCount = (await redis.get(ipKey)) || 0;
+    if (Number(ipCount) >= PHOTO_LIMIT) {
+      return res.status(429).json({ error: 'Limite atingido', limitReached: true });
+    }
+
     const form = formidable({ maxFileSize: 10 * 1024 * 1024 });
     const [, files] = await form.parse(req);
     const file = files.photo?.[0];
@@ -41,20 +50,21 @@ export default async function handler(req, res) {
 
     fs.unlinkSync(file.filepath);
 
-    // Verifica se moderação está ativa
     const moderation = (await redis.get('moderation')) ?? '1';
 
     if (moderation === '1') {
-      // Moderação ativa: vai para fila de pendentes
       await redis.rpush('pending', result.secure_url);
       await redis.ltrim('pending', -100, -1);
     } else {
-      // Moderação desativada: vai direto para o totem
       await redis.rpush('photos', result.secure_url);
       await redis.ltrim('photos', -50, -1);
     }
 
-    return res.status(200).json({ success: true, url: result.secure_url });
+    // Incrementa contador do IP (expira em 24h)
+    await redis.incr(ipKey);
+    await redis.expire(ipKey, 86400);
+
+    return res.status(200).json({ success: true, url: result.secure_url, moderation: moderation === '1' });
 
   } catch (err) {
     console.error(err);

@@ -1,4 +1,3 @@
-// api/photos.js — Retorna lista de fotos do evento
 import { Redis } from '@upstash/redis';
 
 const redis = new Redis({
@@ -11,9 +10,10 @@ export default async function handler(req, res) {
   res.setHeader('Cache-Control', 'no-store');
 
   try {
+    const paused = (await redis.get('paused')) ?? '0';
     const photos = (await redis.lrange('photos', 0, -1)) || [];
-    return res.status(200).json({ photos });
+    return res.status(200).json({ photos, paused: paused === '1' });
   } catch (err) {
-    return res.status(500).json({ error: err.message, photos: [] });
+    return res.status(500).json({ error: err.message, photos: [], paused: false });
   }
 }
