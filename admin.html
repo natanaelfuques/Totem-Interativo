@@ -219,7 +219,7 @@
     input:checked + .slider { background: var(--accent); }
     input:checked + .slider:before { transform: translateX(24px); }
 
-    .brand { display: block; text-align: center; font-size: 12px; font-weight: 600; color: rgba(255,255,255,0.4); text-decoration: none; transition: color 0.2s; letter-spacing: 1.5px; padding: 24px 0 8px; }
+    .brand { display: inline-block; text-align: center; font-size: 12px; font-weight: 600; color: rgba(255,255,255,0.4); text-decoration: none; transition: color 0.2s; letter-spacing: 1.5px; padding: 24px 0 8px; }
     .brand:hover { color: rgba(255,255,255,0.75); }
   </style>
 </head>
@@ -294,7 +294,7 @@
     <span class="badge green" id="approved-count">0</span>
   </div>
   <div id="approved-grid" class="grid"></div>
-  <a class="brand" href="https://instagram.com/audiodequalidade" target="_blank">@audiodequalidade</a>
+  <div style="text-align:center"><a class="brand" href="https://instagram.com/audiodequalidade" target="_blank">@audiodequalidade</a></div>
 </div>
 
 <script>
