@@ -40,7 +40,9 @@ export default async function handler(req, res) {
 
     fs.unlinkSync(file.filepath);
 
-    const moderation = (await redis.get('moderation')) ?? '1';
+    const settingsRaw = await redis.get('settings');
+    const settings = settingsRaw ? (typeof settingsRaw === 'string' ? JSON.parse(settingsRaw) : settingsRaw) : { moderation: '1' };
+    const moderation = settings.moderation ?? '1';
 
     if (moderation === '1') {
       await redis.rpush('pending', result.secure_url);
