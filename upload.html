@@ -128,8 +128,8 @@
       <h1>Foto enviada!</h1>
       <p>Sua foto já está aparecendo no totem. Aproveite o evento!</p>
       <img class="sent-preview" id="sent-preview" alt="Sua foto" />
-      <button class="btn-remove-req" id="removeBtn" onclick="requestRemoval()">
-        Solicitar remoção desta foto
+      <button class="btn-remove-req" id="removeBtn" onclick="removePhoto()">
+        Remover minha foto do totem
       </button>
       <div class="status" id="remove-status"></div>
     </div>
@@ -193,18 +193,19 @@
         sendIcon.style.display = 'inline';
       }
     }
-    async function requestRemoval() {
+    async function removePhoto() {
       if (!uploadedUrl) return;
       const btn = document.getElementById('removeBtn');
       btn.disabled = true;
-      btn.textContent = 'Solicitando...';
+      btn.textContent = 'Removendo...';
       try {
-        await fetch(`/api/flag?url=${encodeURIComponent(uploadedUrl)}`, { method: 'POST' });
-        btn.textContent = 'Solicitação enviada ✓';
-        document.getElementById('remove-status').textContent = 'O administrador foi notificado.';
+        await fetch(`/api/remove?url=${encodeURIComponent(uploadedUrl)}`, { method: 'POST' });
+        btn.textContent = 'Foto removida ✓';
+        document.getElementById('sent-preview').style.opacity = '0.3';
+        document.getElementById('remove-status').textContent = 'Sua foto foi removida do totem.';
       } catch {
         btn.disabled = false;
-        btn.textContent = 'Solicitar remoção desta foto';
+        btn.textContent = 'Remover minha foto do totem';
       }
     }
   </script>
