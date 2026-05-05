@@ -52,6 +52,19 @@ export default async function handler(req, res) {
       return res.status(200).json({ success: true });
     }
 
+    if (action === 'reorder') {
+      const body = await new Promise((resolve) => {
+        let data = '';
+        req.on('data', chunk => data += chunk);
+        req.on('end', () => resolve(JSON.parse(data)));
+      });
+      await redis.del('photos');
+      if (body.photos && body.photos.length > 0) {
+        await redis.rpush('photos', ...body.photos);
+      }
+      return res.status(200).json({ success: true });
+    }
+
     if (action === 'moderation') {
       const val = req.query.value === '1' ? '1' : '0';
       await redis.set('moderation', val);
