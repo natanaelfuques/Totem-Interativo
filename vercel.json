@@ -1,6 +1,6 @@
 {
   "rewrites": [
-    { "source": "/upload", "destination": "/public/upload.html" },
-    { "source": "/totem", "destination": "/public/totem.html" }
+    { "source": "/upload", "destination": "/upload.html" },
+    { "source": "/totem", "destination": "/totem.html" }
   ]
 }
