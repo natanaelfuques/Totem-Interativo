@@ -27,6 +27,11 @@ export default async function handler(req, res) {
     const ip = req.headers['x-forwarded-for']?.split(',')[0]?.trim() || req.socket.remoteAddress || 'unknown';
     const ipKey = `ip:${ip}`;
 
+    // Lê settings primeiro
+    const settingsRaw = await redis.get('settings');
+    const settings = settingsRaw ? (typeof settingsRaw === 'string' ? JSON.parse(settingsRaw) : settingsRaw) : {};
+    const moderation = settings.moderation ?? '1';
+
     // Regras lidas do settings
     const defaultRules = { t1_limit: 5, t1_ttl: 10, t2_limit: 10, t2_ttl: 60, t3_limit: 15, t3_ttl: 720 };
     const rules = { ...defaultRules, ...(settings.rules || {}) };
@@ -67,10 +72,6 @@ export default async function handler(req, res) {
     });
 
     fs.unlinkSync(file.filepath);
-
-    const settingsRaw = await redis.get('settings');
-    const settings = settingsRaw ? (typeof settingsRaw === 'string' ? JSON.parse(settingsRaw) : settingsRaw) : {};
-    const moderation = settings.moderation ?? '1';
 
     if (moderation === '1') {
       await redis.rpush('pending', result.secure_url);
