@@ -362,6 +362,8 @@
     await fetch(`/api/admin?pwd=${pwd}&action=unflag&url=${encodeURIComponent(url)}`, { method: 'POST' });
     loadPhotos();
   }
+
+  function renderPending(list) {
     document.getElementById('pending-count').textContent = list.length;
     const grid = document.getElementById('pending-grid');
     if (list.length === 0) {
