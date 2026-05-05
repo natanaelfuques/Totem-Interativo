@@ -297,16 +297,20 @@
   let currentIndex = 0;
   let slideInterval = null;
   let lastCount = 0;
+  let paused = false;
 
   async function fetchPhotos() {
     try {
       const res = await fetch('/api/photos');
       const data = await res.json();
-      // Se pausado, para o slideshow
-      if (data.paused && slideInterval) {
-        clearInterval(slideInterval);
-        slideInterval = null;
-      } else if (!data.paused && !slideInterval) {
+      const wasPaused = paused;
+      paused = !!data.paused;
+
+      if (paused && !wasPaused) {
+        // Acabou de pausar — para o slideshow
+        if (slideInterval) { clearInterval(slideInterval); slideInterval = null; }
+      } else if (!paused && wasPaused) {
+        // Acabou de retomar — reinicia
         startSlideshow();
       }
       return data.photos || [];
@@ -420,9 +424,10 @@
   }
   // Inicia slideshow automático
   function startSlideshow() {
+    if (paused) return;
     if (slideInterval) clearInterval(slideInterval);
     slideInterval = setInterval(() => {
-      if (photos.length > 1) nextSlide();
+      if (photos.length > 1 && !paused) nextSlide();
     }, CONFIG.slideDuration);
   }
 
