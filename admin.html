@@ -246,7 +246,13 @@
       <div class="subtitle">Gerencie as fotos do totem</div>
     </div>
     <div style="display:flex;gap:8px;flex-wrap:wrap">
-      <button onclick="openSettings()" style="background:rgba(255,255,255,0.05);border:1px solid var(--border);color:var(--muted);font-size:13px;padding:10px 14px;white-space:nowrap" title="Configurações">
+      <button onclick="document.getElementById('cover-input').click()" style="background:rgba(255,255,255,0.05);border:1px solid var(--border);color:var(--muted);font-size:13px;padding:10px 14px;white-space:nowrap" title="Enviar foto de capa">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" style="display:block">
+          <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M12 11v6M9 14l3-3 3 3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+      <input type="file" id="cover-input" accept="image/*" style="display:none" onchange="uploadCover(this)" />
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" style="display:block">
           <path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6z" stroke="currentColor" stroke-width="1.8"/>
           <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" stroke="currentColor" stroke-width="1.8"/>
@@ -477,6 +483,31 @@
   async function whitelistIP(ip) {
     await fetch(`/api/admin?pwd=${pwd}&action=whitelist&url=${encodeURIComponent(ip)}`, { method: 'POST' });
     loadPhotos();
+  }
+
+  async function uploadCover(input) {
+    const file = input.files[0];
+    if (!file) return;
+    input.value = '';
+    const btn = document.querySelector('[title="Enviar foto de capa"]');
+    const origHTML = btn.innerHTML;
+    btn.innerHTML = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" style="display:block"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.8" stroke-dasharray="4 4"/></svg>';
+    btn.disabled = true;
+    try {
+      const formData = new FormData();
+      formData.append('photo', file);
+      const res = await fetch(`/api/cover?pwd=${pwd}`, { method: 'POST', body: formData });
+      const data = await res.json();
+      if (data.success) {
+        btn.style.color = 'var(--green)';
+        setTimeout(() => { btn.style.color = ''; btn.innerHTML = origHTML; btn.disabled = false; }, 2000);
+        loadPhotos();
+      } else throw new Error(data.error);
+    } catch (err) {
+      alert('Erro ao enviar: ' + err.message);
+      btn.innerHTML = origHTML;
+      btn.disabled = false;
+    }
   }
 
   async function unwhitelistIP(ip) {
