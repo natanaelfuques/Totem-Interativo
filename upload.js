@@ -1,8 +1,6 @@
 // api/upload.js — Vercel Serverless Function
-// Recebe foto, sobe pro Cloudinary, salva URL no KV Store (Vercel KV)
-
 import { v2 as cloudinary } from 'cloudinary';
-import { kv } from '@vercel/kv';
+import { Redis } from '@upstash/redis';
 import formidable from 'formidable';
 import fs from 'fs';
 
@@ -14,6 +12,8 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
+const redis = Redis.fromEnv();
+
 export default async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
 
@@ -22,14 +22,12 @@ export default async function handler(req, res) {
   }
 
   try {
-    // Parse multipart form
-    const form = formidable({ maxFileSize: 10 * 1024 * 1024 }); // 10MB
+    const form = formidable({ maxFileSize: 10 * 1024 * 1024 });
     const [, files] = await form.parse(req);
     const file = files.photo?.[0];
 
     if (!file) return res.status(400).json({ error: 'Nenhuma foto enviada' });
 
-    // Sobe pro Cloudinary
     const result = await cloudinary.uploader.upload(file.filepath, {
       folder: 'totem-event',
       transformation: [
@@ -38,17 +36,12 @@ export default async function handler(req, res) {
       ],
     });
 
-    // Limpa arquivo temporário
     fs.unlinkSync(file.filepath);
 
-    // Salva URL no Vercel KV
-    const existing = (await kv.get('photos')) || [];
-    const updated = [...existing, result.secure_url];
-
+    // Salva no Upstash Redis (lista)
+    await redis.rpush('photos', result.secure_url);
     // Mantém no máximo 50 fotos
-    if (updated.length > 50) updated.splice(0, updated.length - 50);
-
-    await kv.set('photos', updated);
+    await redis.ltrim('photos', -50, -1);
 
     return res.status(200).json({ success: true, url: result.secure_url });
 
