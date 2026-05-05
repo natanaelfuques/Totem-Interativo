@@ -306,14 +306,14 @@
     } catch { return []; }
   }
 
-  let newPhotoIndex = -1;
+  let newPhotoIndices = new Set();
 
   function renderDots() {
     const dots = document.getElementById('dots');
     dots.innerHTML = photos.map((_, i) => {
       let cls = 'dot';
       if (i === currentIndex) cls += ' active';
-      else if (i === newPhotoIndex) cls += ' new';
+      else if (newPhotoIndices.has(i)) cls += ' new';
       return `<div class="${cls}"></div>`;
     }).join('');
   }
@@ -325,7 +325,7 @@
       if (i === index) s.classList.add('active');
     });
     currentIndex = index;
-    if (currentIndex === newPhotoIndex) newPhotoIndex = -1;
+    if (newPhotoIndices.has(currentIndex)) newPhotoIndices.delete(currentIndex);
     renderDots();
   }
 
@@ -401,7 +401,9 @@
           showSlide(0);
         } else if (photos.length > prevCount) {
           showNewBadge();
-          newPhotoIndex = photos.length - 1;
+          for (let i = prevCount; i < photos.length; i++) {
+            newPhotoIndices.add(i);
+          }
           renderDots();
         }
       } else if (!hadPhotos) {
