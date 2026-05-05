@@ -41,10 +41,9 @@ export default async function handler(req, res) {
 
     fs.unlinkSync(file.filepath);
 
-    // Salva no Upstash Redis (lista)
-    await redis.rpush('photos', result.secure_url);
-    // Mantém no máximo 50 fotos
-    await redis.ltrim('photos', -50, -1);
+    // Salva na fila de pendentes (aguarda moderação)
+    await redis.rpush('pending', result.secure_url);
+    await redis.ltrim('pending', -100, -1);
 
     return res.status(200).json({ success: true, url: result.secure_url });
 
