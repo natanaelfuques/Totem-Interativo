@@ -434,13 +434,13 @@
       renderFlagged(data.flagged || [], data.photos || []);
       renderBlocked(data.blocked || [], data.whitelist || []);
       // Atualiza toggle (só se não estiver em operação recente)
-      if (!pauseRefresh) {
+      if (!lockModeration) {
         const toggle = document.getElementById('moderation-toggle');
         toggle.checked = data.moderation !== false;
         updateToggleLabel(toggle.checked);
       }
       // Atualiza pause (só se não estiver em pausa manual recente)
-      if (!pauseRefresh) updatePauseBtn(data.paused);
+      if (!lockPause) updatePauseBtn(data.paused);
     } catch(e) {
       document.getElementById('login-error').textContent = 'Erro ao conectar';
     }
@@ -515,7 +515,7 @@
         setTimeout(() => { statusEl.textContent = ''; statusEl.style.color = ''; }, 3000);
         pauseRefresh = true;
         loadPhotos();
-        setTimeout(() => pauseRefresh = false, 31000);
+        setTimeout(() => pauseRefresh = false, 2000);
       } else throw new Error(data.error);
     } catch (err) {
       statusEl.style.color = 'var(--accent)';
@@ -681,12 +681,12 @@
 
   async function togglePause() {
     const val = isPaused ? '0' : '1';
-    pauseRefresh = true;
+    lockPause = true;
     const res = await fetch(`/api/admin?pwd=${pwd}&action=pause&value=${val}`, { method: 'POST' });
     const data = await res.json();
     isPaused = data.paused;
     updatePauseBtn(isPaused);
-    setTimeout(() => pauseRefresh = false, 35000);
+    setTimeout(() => lockPause = false, 31000);
   }
 
   function renderApproved(list) {
@@ -757,14 +757,16 @@
   }
 
   let pauseRefresh = false;
+  let lockModeration = false;
+  let lockPause = false;
 
   async function toggleModeration() {
     const toggle = document.getElementById('moderation-toggle');
     const val = toggle.checked ? '1' : '0';
-    pauseRefresh = true;
+    lockModeration = true;
     await fetch(`/api/admin?pwd=${pwd}&action=moderation&value=${val}`, { method: 'POST' });
     updateToggleLabel(toggle.checked);
-    setTimeout(() => pauseRefresh = false, 31000);
+    setTimeout(() => lockModeration = false, 31000);
   }
 
   function updateToggleLabel(active) {
