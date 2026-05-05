@@ -126,7 +126,7 @@
         </svg>
       </div>
       <h1>Foto enviada!</h1>
-      <p>Sua foto já está aparecendo no totem. Aproveite o evento!</p>
+      <p id="success-msg">Sua foto já está aparecendo no totem. Aproveite o evento!</p>
       <img class="sent-preview" id="sent-preview" alt="Sua foto" />
       <button class="btn-remove-req" id="removeBtn" onclick="removePhoto()">
         Remover minha foto do totem
@@ -182,7 +182,12 @@
             const s = document.getElementById('success-state');
             s.style.display = 'flex';
             document.getElementById('sent-preview').src = uploadedUrl;
+            document.getElementById('success-msg').textContent = data.moderation
+              ? 'Sua foto foi enviada e será exibida após aprovação.'
+              : 'Sua foto já está aparecendo no totem. Aproveite o evento!';
           }, 300);
+        } else if (data.limitReached) {
+          throw new Error('Limite de 10 fotos atingido.');
         } else { throw new Error(data.error || 'Erro ao enviar'); }
       } catch (err) {
         progressWrap.style.display = 'none';

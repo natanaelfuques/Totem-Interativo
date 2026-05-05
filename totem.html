@@ -302,6 +302,13 @@
     try {
       const res = await fetch('/api/photos');
       const data = await res.json();
+      // Se pausado, para o slideshow
+      if (data.paused && slideInterval) {
+        clearInterval(slideInterval);
+        slideInterval = null;
+      } else if (!data.paused && !slideInterval) {
+        startSlideshow();
+      }
       return data.photos || [];
     } catch { return []; }
   }
