@@ -181,6 +181,10 @@
       background: #ff3c6e;
       transform: scale(1.4);
     }
+    .dot.new {
+      background: #facc15;
+      transform: scale(1.4);
+    }
 
     /* New photo flash */
     #flash {
@@ -302,11 +306,16 @@
     } catch { return []; }
   }
 
+  let newPhotoIndex = -1;
+
   function renderDots() {
     const dots = document.getElementById('dots');
-    dots.innerHTML = photos.map((_, i) =>
-      `<div class="dot ${i === currentIndex ? 'active' : ''}"></div>`
-    ).join('');
+    dots.innerHTML = photos.map((_, i) => {
+      let cls = 'dot';
+      if (i === currentIndex) cls += ' active';
+      else if (i === newPhotoIndex) cls += ' new';
+      return `<div class="${cls}"></div>`;
+    }).join('');
   }
 
   function showSlide(index) {
@@ -316,6 +325,7 @@
       if (i === index) s.classList.add('active');
     });
     currentIndex = index;
+    if (currentIndex === newPhotoIndex) newPhotoIndex = -1;
     renderDots();
   }
 
@@ -391,6 +401,8 @@
           showSlide(0);
         } else if (photos.length > prevCount) {
           showNewBadge();
+          newPhotoIndex = photos.length - 1;
+          renderDots();
         }
       } else if (!hadPhotos) {
         document.getElementById('empty').style.display = 'flex';
