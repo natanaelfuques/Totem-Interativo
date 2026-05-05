@@ -246,6 +246,12 @@
       <div class="subtitle">Gerencie as fotos do totem</div>
     </div>
     <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <button onclick="openSettings()" style="background:rgba(255,255,255,0.05);border:1px solid var(--border);color:var(--muted);font-size:13px;padding:10px 14px;white-space:nowrap" title="Configurações">
+        <svg width="15" height="15" viewBox="0 0 15 15" fill="none" style="display:block">
+          <circle cx="7.5" cy="7.5" r="2" stroke="currentColor" stroke-width="1.4"/>
+          <path d="M7.5 1v1.5M7.5 12.5V14M1 7.5h1.5M12.5 7.5H14M2.6 2.6l1.1 1.1M11.3 11.3l1.1 1.1M2.6 12.4l1.1-1.1M11.3 3.7l1.1-1.1" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+        </svg>
+      </button>
       <button id="pauseBtn" onclick="togglePause()" style="background:rgba(250,204,21,0.1);border:1px solid rgba(250,204,21,0.3);color:#facc15;font-size:13px;padding:10px 16px;white-space:nowrap">
         <svg width="13" height="13" viewBox="0 0 13 13" fill="none" style="display:inline;vertical-align:middle;margin-right:4px"><rect x="2" y="1.5" width="3.5" height="10" rx="1" fill="currentColor"/><rect x="7.5" y="1.5" width="3.5" height="10" rx="1" fill="currentColor"/></svg>
         <span id="pauseLabel">Pausar totem</span>
@@ -270,15 +276,17 @@
     </label>
   </div>
 
-  <div class="section-title">
-    <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-      <circle cx="7" cy="7" r="5.5" stroke="currentColor" stroke-width="1.4"/>
-      <path d="M7 4v3.5l2 1.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
-    </svg>
-    Aguardando aprovação
-    <span class="badge" id="pending-count">0</span>
+  <div id="pending-section">
+    <div class="section-title">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+        <circle cx="7" cy="7" r="5.5" stroke="currentColor" stroke-width="1.4"/>
+        <path d="M7 4v3.5l2 1.5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+      </svg>
+      Aguardando aprovação
+      <span class="badge" id="pending-count">0</span>
+    </div>
+    <div id="pending-grid" class="grid"></div>
   </div>
-  <div id="pending-grid" class="grid"></div>
 
   <div id="whitelist-section" style="display:none; margin-bottom: 8px;">
     <div class="section-title">
@@ -324,6 +332,68 @@
   </div>
   <div id="approved-grid" class="grid"></div>
   <div style="text-align:center"><a class="brand" href="https://instagram.com/audiodequalidade" target="_blank">@audiodequalidade</a></div>
+</div>
+
+<!-- Modal de configurações -->
+<div id="settings-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:1000;align-items:center;justify-content:center;padding:24px">
+  <div style="background:var(--card);border:1px solid var(--border);border-radius:20px;padding:28px;max-width:420px;width:100%">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px">
+      <h2 style="font-family:'Outfit',sans-serif;font-size:18px;font-weight:700">Regras de bloqueio</h2>
+      <button onclick="closeSettings()" style="background:none;border:none;color:var(--muted);cursor:pointer;padding:4px;width:auto">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M2 2l12 12M14 2L2 14" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+      </button>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:16px">
+      <div style="background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:12px;padding:16px">
+        <div style="font-size:13px;font-weight:600;margin-bottom:12px;color:var(--text)">Faixa 1</div>
+        <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+          <div style="flex:1;min-width:80px">
+            <div style="font-size:11px;color:var(--muted);margin-bottom:4px">Limite de fotos</div>
+            <input id="t1_limit" type="number" min="1" max="100" style="width:100%;padding:8px;background:rgba(255,255,255,0.05);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:14px" />
+          </div>
+          <div style="flex:1;min-width:80px">
+            <div style="font-size:11px;color:var(--muted);margin-bottom:4px">Expira em (min)</div>
+            <input id="t1_ttl" type="number" min="1" style="width:100%;padding:8px;background:rgba(255,255,255,0.05);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:14px" />
+          </div>
+        </div>
+      </div>
+
+      <div style="background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:12px;padding:16px">
+        <div style="font-size:13px;font-weight:600;margin-bottom:12px;color:var(--text)">Faixa 2</div>
+        <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+          <div style="flex:1;min-width:80px">
+            <div style="font-size:11px;color:var(--muted);margin-bottom:4px">Limite de fotos</div>
+            <input id="t2_limit" type="number" min="1" max="100" style="width:100%;padding:8px;background:rgba(255,255,255,0.05);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:14px" />
+          </div>
+          <div style="flex:1;min-width:80px">
+            <div style="font-size:11px;color:var(--muted);margin-bottom:4px">Expira em (min)</div>
+            <input id="t2_ttl" type="number" min="1" style="width:100%;padding:8px;background:rgba(255,255,255,0.05);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:14px" />
+          </div>
+        </div>
+      </div>
+
+      <div style="background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:12px;padding:16px">
+        <div style="font-size:13px;font-weight:600;margin-bottom:12px;color:var(--text)">Bloqueio total</div>
+        <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+          <div style="flex:1;min-width:80px">
+            <div style="font-size:11px;color:var(--muted);margin-bottom:4px">Bloqueia após (fotos)</div>
+            <input id="t3_limit" type="number" min="1" max="100" style="width:100%;padding:8px;background:rgba(255,255,255,0.05);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:14px" />
+          </div>
+          <div style="flex:1;min-width:80px">
+            <div style="font-size:11px;color:var(--muted);margin-bottom:4px">Bloqueio por (min)</div>
+            <input id="t3_ttl" type="number" min="1" style="width:100%;padding:8px;background:rgba(255,255,255,0.05);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:14px" />
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div style="display:flex;gap:8px;margin-top:20px">
+      <button onclick="saveSettings()" class="btn-primary" style="flex:1">Salvar</button>
+      <button onclick="closeSettings()" style="background:none;border:1px solid var(--border);color:var(--muted);padding:12px 20px;border-radius:10px;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;font-size:14px">Cancelar</button>
+    </div>
+    <div id="settings-status" style="text-align:center;font-size:12px;color:var(--muted);margin-top:10px"></div>
+  </div>
 </div>
 
 <script>
@@ -413,6 +483,61 @@
     await fetch(`/api/admin?pwd=${pwd}&action=unwhitelist&url=${encodeURIComponent(ip)}`, { method: 'POST' });
     loadPhotos();
   }
+
+  // Configurações de bloqueio
+  async function openSettings() {
+    const modal = document.getElementById('settings-modal');
+    modal.style.display = 'flex';
+    try {
+      const res = await fetch(`/api/admin?pwd=${pwd}&action=get_rules`);
+      const data = await res.json();
+      if (data.rules) {
+        document.getElementById('t1_limit').value = data.rules.t1_limit ?? 5;
+        document.getElementById('t1_ttl').value = data.rules.t1_ttl ?? 10;
+        document.getElementById('t2_limit').value = data.rules.t2_limit ?? 10;
+        document.getElementById('t2_ttl').value = data.rules.t2_ttl ?? 60;
+        document.getElementById('t3_limit').value = data.rules.t3_limit ?? 15;
+        document.getElementById('t3_ttl').value = data.rules.t3_ttl ?? 720;
+      } else {
+        document.getElementById('t1_limit').value = 5;
+        document.getElementById('t1_ttl').value = 10;
+        document.getElementById('t2_limit').value = 10;
+        document.getElementById('t2_ttl').value = 60;
+        document.getElementById('t3_limit').value = 15;
+        document.getElementById('t3_ttl').value = 720;
+      }
+    } catch {}
+  }
+
+  function closeSettings() {
+    document.getElementById('settings-modal').style.display = 'none';
+  }
+
+  async function saveSettings() {
+    const rules = {
+      t1_limit: Number(document.getElementById('t1_limit').value),
+      t1_ttl:   Number(document.getElementById('t1_ttl').value),
+      t2_limit: Number(document.getElementById('t2_limit').value),
+      t2_ttl:   Number(document.getElementById('t2_ttl').value),
+      t3_limit: Number(document.getElementById('t3_limit').value),
+      t3_ttl:   Number(document.getElementById('t3_ttl').value),
+    };
+    await fetch(`/api/admin?pwd=${pwd}&action=save_rules`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(rules)
+    });
+    document.getElementById('settings-status').textContent = 'Salvo ✓';
+    setTimeout(() => {
+      document.getElementById('settings-status').textContent = '';
+      closeSettings();
+    }, 1200);
+  }
+
+  // Fecha modal ao clicar fora
+  document.getElementById('settings-modal').addEventListener('click', (e) => {
+    if (e.target === e.currentTarget) closeSettings();
+  });
 
   function renderFlagged(flagged, photos) {
     const section = document.getElementById('flagged-section');
@@ -595,12 +720,11 @@
   }
 
   function updateToggleLabel(active) {
-    document.getElementById('toggle-label').textContent = active
-      ? 'Moderação ativada'
-      : 'Moderação desativada';
+    document.getElementById('toggle-label').textContent = active ? 'Moderação ativada' : 'Moderação desativada';
     document.getElementById('toggle-sub').textContent = active
       ? 'Fotos aguardam aprovação antes de aparecer no totem'
       : 'Fotos aparecem no totem automaticamente';
+    document.getElementById('pending-section').style.display = active ? 'block' : 'none';
   }
 
   // Auto-refresh a cada 10s
