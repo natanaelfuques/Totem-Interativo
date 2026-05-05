@@ -12,6 +12,10 @@ export default async function handler(req, res) {
   const { url } = req.query;
   if (!url) return res.status(400).json({ error: 'URL required' });
 
-  await redis.sadd('flagged', url);
+  // Evita duplicatas
+  const existing = (await redis.lrange('flagged', 0, -1)) || [];
+  if (!existing.includes(url)) {
+    await redis.rpush('flagged', url);
+  }
   return res.status(200).json({ success: true });
 }

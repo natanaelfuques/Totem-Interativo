@@ -24,8 +24,9 @@ export default async function handler(req, res) {
   if (req.method === 'GET') {
     const pending = (await redis.lrange('pending', 0, -1)) || [];
     const photos = (await redis.lrange('photos', 0, -1)) || [];
-    const moderation = (await redis.get('moderation')) ?? '1'; // '1' = moderação ativa
-    return res.status(200).json({ pending, photos, moderation: moderation === '1' });
+    const flagged = (await redis.lrange('flagged', 0, -1)) || [];
+    const moderation = (await redis.get('moderation')) ?? '1';
+    return res.status(200).json({ pending, photos, flagged, moderation: moderation === '1' });
   }
 
   if (req.method === 'POST') {
@@ -33,6 +34,11 @@ export default async function handler(req, res) {
       await redis.lrem('pending', 0, url);
       await redis.rpush('photos', url);
       await redis.ltrim('photos', -50, -1);
+      return res.status(200).json({ success: true });
+    }
+
+    if (action === 'unflag' && url) {
+      await redis.lrem('flagged', 0, url);
       return res.status(200).json({ success: true });
     }
 
@@ -49,6 +55,7 @@ export default async function handler(req, res) {
     if (action === 'clear') {
       await redis.del('photos');
       await redis.del('pending');
+      await redis.del('flagged');
       return res.status(200).json({ success: true });
     }
 
