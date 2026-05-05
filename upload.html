@@ -73,6 +73,18 @@
     @keyframes pop { from { transform: scale(0); opacity: 0; } to { transform: scale(1); opacity: 1; } }
     .brand { position: fixed; bottom: 16px; left: 0; right: 0; text-align: center; font-size: 12px; font-weight: 600; color: rgba(255,255,255,0.4); letter-spacing: 1.5px; z-index: 10; text-decoration: none; transition: color 0.2s; }
     .brand:hover { color: rgba(255,255,255,0.75); }
+    .success-state img.sent-preview {
+      width: 100%; border-radius: 14px; max-height: 220px; object-fit: cover;
+      border: 1px solid var(--border); margin-bottom: 4px;
+    }
+    .btn-remove-req {
+      background: none; border: 1px solid rgba(239,68,68,0.4); color: rgba(239,68,68,0.7);
+      font-size: 12px; padding: 8px 16px; border-radius: 8px; cursor: pointer;
+      font-family: 'Plus Jakarta Sans', sans-serif; margin-top: 8px; width: auto;
+      transition: all 0.2s;
+    }
+    .btn-remove-req:hover { border-color: #ef4444; color: #ef4444; }
+    .btn-remove-req:disabled { opacity: 0.4; cursor: default; }
   </style>
 </head>
 <body>
@@ -115,6 +127,11 @@
       </div>
       <h1>Foto enviada!</h1>
       <p>Sua foto já está aparecendo no totem. Aproveite o evento!</p>
+      <img class="sent-preview" id="sent-preview" alt="Sua foto" />
+      <button class="btn-remove-req" id="removeBtn" onclick="requestRemoval()">
+        Solicitar remoção desta foto
+      </button>
+      <div class="status" id="remove-status"></div>
     </div>
   </div>
   <a class="brand" href="https://instagram.com/audiodequalidade" target="_blank">@audiodequalidade</a>
@@ -128,6 +145,8 @@
     const progressWrap = document.getElementById('progressWrap');
     const progressBar = document.getElementById('progressBar');
     let selectedFile = null;
+    let uploadedUrl = null;
+
     fileInput.addEventListener('change', (e) => {
       const file = e.target.files[0];
       if (!file) return;
@@ -157,10 +176,12 @@
         const data = await res.json();
         progressBar.style.width = '100%';
         if (data.success) {
+          uploadedUrl = data.url;
           setTimeout(() => {
             document.getElementById('form-state').style.display = 'none';
             const s = document.getElementById('success-state');
             s.style.display = 'flex';
+            document.getElementById('sent-preview').src = uploadedUrl;
           }, 300);
         } else { throw new Error(data.error || 'Erro ao enviar'); }
       } catch (err) {
@@ -170,6 +191,20 @@
         sendBtn.disabled = false;
         sendLabel.textContent = 'Enviar para o totem';
         sendIcon.style.display = 'inline';
+      }
+    }
+    async function requestRemoval() {
+      if (!uploadedUrl) return;
+      const btn = document.getElementById('removeBtn');
+      btn.disabled = true;
+      btn.textContent = 'Solicitando...';
+      try {
+        await fetch(`/api/flag?url=${encodeURIComponent(uploadedUrl)}`, { method: 'POST' });
+        btn.textContent = 'Solicitação enviada ✓';
+        document.getElementById('remove-status').textContent = 'O administrador foi notificado.';
+      } catch {
+        btn.disabled = false;
+        btn.textContent = 'Solicitar remoção desta foto';
       }
     }
   </script>
