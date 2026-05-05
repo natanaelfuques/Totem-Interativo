@@ -86,12 +86,21 @@
 
     .header-row {
       display: flex;
-      align-items: center;
+      align-items: flex-start;
       justify-content: space-between;
-      margin-bottom: 32px;
-      flex-wrap: gap;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
       gap: 12px;
     }
+
+    h1 {
+      font-family: 'Syne', sans-serif;
+      font-size: 22px;
+      font-weight: 800;
+      margin-bottom: 4px;
+    }
+
+    .btn-clear { font-size: 13px; padding: 10px 16px; white-space: nowrap; }
 
     .section-title {
       font-family: 'Syne', sans-serif;
@@ -115,9 +124,9 @@
 
     .grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-      gap: 16px;
-      margin-bottom: 48px;
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: 12px;
+      margin-bottom: 40px;
     }
 
     .photo-card {
@@ -135,10 +144,13 @@
     }
 
     .photo-actions {
-      padding: 12px;
+      padding: 10px;
       display: flex;
-      gap: 8px;
+      gap: 6px;
+      flex-wrap: wrap;
     }
+
+    .btn-approve, .btn-reject { font-size: 13px; padding: 8px 12px; flex: 1; }
 
     .empty {
       color: var(--muted);
@@ -152,6 +164,53 @@
     }
 
     .error { color: var(--accent); font-size: 13px; margin-top: 8px; }
+
+    .toggle-row {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 16px 20px;
+      margin-bottom: 32px;
+    }
+
+    .toggle-label { font-size: 15px; font-weight: 500; flex: 1; }
+    .toggle-sub { font-size: 12px; color: var(--muted); margin-top: 2px; }
+
+    .switch {
+      position: relative;
+      width: 52px;
+      height: 28px;
+      flex-shrink: 0;
+    }
+
+    .switch input { opacity: 0; width: 0; height: 0; }
+
+    .slider {
+      position: absolute;
+      inset: 0;
+      background: rgba(255,255,255,0.1);
+      border-radius: 99px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    .slider:before {
+      content: '';
+      position: absolute;
+      width: 22px;
+      height: 22px;
+      left: 3px;
+      top: 3px;
+      background: #fff;
+      border-radius: 50%;
+      transition: 0.3s;
+    }
+
+    input:checked + .slider { background: var(--accent); }
+    input:checked + .slider:before { transform: translateX(24px); }
   </style>
 </head>
 <body>
@@ -167,9 +226,20 @@
   <div class="header-row">
     <div>
       <h1>Moderação de Fotos</h1>
-      <div class="subtitle">Aprove as fotos para exibir no totem</div>
+      <div class="subtitle">Gerencie as fotos do totem</div>
     </div>
     <button class="btn-clear" onclick="clearAll()">🗑 Limpar tudo</button>
+  </div>
+
+  <div class="toggle-row">
+    <div>
+      <div class="toggle-label">Moderação ativa</div>
+      <div class="toggle-sub" id="toggle-sub">Fotos aguardam aprovação antes de aparecer no totem</div>
+    </div>
+    <label class="switch">
+      <input type="checkbox" id="moderation-toggle" onchange="toggleModeration()" />
+      <span class="slider"></span>
+    </label>
   </div>
 
   <div class="section-title">
@@ -205,6 +275,10 @@
       document.getElementById('app').style.display = 'block';
       renderPending(data.pending || []);
       renderApproved(data.photos || []);
+      // Atualiza toggle
+      const toggle = document.getElementById('moderation-toggle');
+      toggle.checked = data.moderation !== false;
+      updateToggleLabel(toggle.checked);
     } catch(e) {
       document.getElementById('login-error').textContent = 'Erro ao conectar';
     }
@@ -264,6 +338,19 @@
     if (!confirm('Apagar todas as fotos e pendentes?')) return;
     await fetch(`/api/admin?pwd=${pwd}&action=clear`, { method: 'POST' });
     loadPhotos();
+  }
+
+  async function toggleModeration() {
+    const toggle = document.getElementById('moderation-toggle');
+    const val = toggle.checked ? '1' : '0';
+    await fetch(`/api/admin?pwd=${pwd}&action=moderation&value=${val}`, { method: 'POST' });
+    updateToggleLabel(toggle.checked);
+  }
+
+  function updateToggleLabel(active) {
+    document.getElementById('toggle-sub').textContent = active
+      ? 'Fotos aguardam aprovação antes de aparecer no totem'
+      : 'Fotos aparecem no totem automaticamente';
   }
 
   // Auto-refresh a cada 10s
