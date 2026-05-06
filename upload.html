@@ -85,7 +85,19 @@
       transition: all 0.2s;
     }
     .btn-remove-req:hover { border-color: #ef4444; color: #ef4444; }
-    .btn-remove-req:disabled { opacity: 0.4; cursor: default; }
+    .toast {
+      position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+      background: #1a1a24; border: 1px solid rgba(239,68,68,0.4);
+      border-radius: 16px; padding: 24px 28px; text-align: center;
+      z-index: 100; max-width: 300px; width: 90%;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+      animation: fadeIn 0.3s ease;
+    }
+    @keyframes fadeIn { from { opacity: 0; transform: translate(-50%, -48%); } to { opacity: 1; transform: translate(-50%, -50%); } }
+    .toast-icon { font-size: 32px; margin-bottom: 12px; }
+    .toast h3 { font-family: 'Outfit', sans-serif; font-size: 17px; font-weight: 700; color: #f0f0f5; margin-bottom: 8px; }
+    .toast p { font-size: 13px; color: var(--muted); line-height: 1.5; }
+    .toast-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 99; }
   </style>
 </head>
 <body>
@@ -188,7 +200,12 @@
               : 'Sua foto foi adicionada ao totem. Aproveite o evento!';
           }, 300);
         } else if (data.limitReached) {
-          throw new Error('Limite de 10 fotos atingido.');
+          showLimitToast();
+          sendBtn.disabled = false;
+          sendLabel.textContent = 'Enviar para o totem';
+          sendIcon.style.display = 'inline';
+          progressWrap.style.display = 'none';
+          return;
         } else { throw new Error(data.error || 'Erro ao enviar'); }
       } catch (err) {
         progressWrap.style.display = 'none';
@@ -199,6 +216,22 @@
         sendIcon.style.display = 'inline';
       }
     }
+    function showLimitToast() {
+      const overlay = document.createElement('div');
+      overlay.className = 'toast-overlay';
+      const toast = document.createElement('div');
+      toast.className = 'toast';
+      toast.innerHTML = `
+        <div class="toast-icon">⏳</div>
+        <h3>Limite atingido</h3>
+        <p>Você já enviou muitas fotos.<br>Tente novamente mais tarde.</p>
+      `;
+      document.body.appendChild(overlay);
+      document.body.appendChild(toast);
+      overlay.onclick = () => { overlay.remove(); toast.remove(); };
+      toast.onclick = () => { overlay.remove(); toast.remove(); };
+    }
+
     async function removePhoto() {
       if (!uploadedUrl) return;
       const btn = document.getElementById('removeBtn');
