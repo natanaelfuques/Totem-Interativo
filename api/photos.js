@@ -22,7 +22,8 @@ export default async function handler(req, res) {
     const photos = (await redis.lrange('photos', 0, -1)) || [];
     const limited = settings.show_count === '1' ? photos.slice(0, 1) : photos;
     const slideDuration = (settings.rules && settings.rules.slide_duration) ? settings.rules.slide_duration * 1000 : 5000;
-    return res.status(200).json({ photos: limited, paused: settings.show_count === '1', slideDuration });
+    const eventName = (settings.rules && settings.rules.event_name) ? settings.rules.event_name : 'Totem Interativo';
+    return res.status(200).json({ photos: limited, paused: settings.show_count === '1', slideDuration, eventName });
   } catch (err) {
     return res.status(500).json({ error: err.message, photos: [], paused: false });
   }
