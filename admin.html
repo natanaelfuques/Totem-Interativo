@@ -135,16 +135,24 @@
       background: rgba(0,0,0,0.4);
       transition: all 0.15s;
       cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
     }
-    input.photo-select:checked + .select-dot {
+    .select-dot.checked {
       background: var(--accent);
       border-color: var(--accent);
     }
-    input.photo-select:checked + .select-dot::after {
+    .select-dot.checked::after {
       content: '✓';
-      display: flex; align-items: center; justify-content: center;
-      color: white; font-size: 11px; height: 100%;
+      color: white;
+      font-size: 11px;
+      font-weight: 700;
     }
+    .select-dot.partial {
+      background: var(--accent);
+      border-color: var(--accent);
+    }
+    .select-dot.partial::after { content: none; }
       border: 1px solid var(--border);
       border-radius: 16px;
       overflow: hidden;
@@ -347,7 +355,7 @@
   <div id="select-all-row" style="display:none;align-items:center;justify-content:space-between;margin-bottom:10px;gap:8px">
     <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;color:var(--muted)">
       <input type="checkbox" id="select-all-cb" onchange="toggleSelectAll(this.checked)" style="display:none" />
-      <div id="select-all-dot" onclick="document.getElementById('select-all-cb').click()" class="select-dot"></div>
+      <div id="select-all-dot" onclick="var cb=document.getElementById('select-all-cb');cb.checked=!cb.checked;toggleSelectAll(cb.checked)" class="select-dot"></div>
       Selecionar todas
     </label>
     <button onclick="downloadSelected()" style="background:rgba(255,255,255,0.05);border:1px solid var(--border);color:var(--text);font-size:12px;padding:7px 14px;border-radius:8px;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;font-weight:600;display:flex;align-items:center;gap:6px">
@@ -565,20 +573,24 @@
   }
 
   function toggleSelectAll(checked) {
-    document.querySelectorAll('.photo-select').forEach(cb => cb.checked = checked);
+    document.querySelectorAll('.photo-select').forEach(cb => {
+      cb.checked = checked;
+      cb.parentElement.querySelector('.select-dot').classList.toggle('checked', checked);
+    });
     const dot = document.getElementById('select-all-dot');
-    if (checked) dot.style.background = 'var(--accent)', dot.style.borderColor = 'var(--accent)';
-    else dot.style.background = '', dot.style.borderColor = '';
+    dot.classList.toggle('checked', checked);
+    dot.classList.remove('partial');
   }
 
   function updateSelectAll() {
     const all = document.querySelectorAll('.photo-select');
-    const checked = document.querySelectorAll('.photo-select:checked');
-    const isAll = all.length === checked.length && all.length > 0;
+    const checkedList = document.querySelectorAll('.photo-select:checked');
+    const isAll = all.length > 0 && checkedList.length === all.length;
+    const isPartial = checkedList.length > 0 && !isAll;
     document.getElementById('select-all-cb').checked = isAll;
     const dot = document.getElementById('select-all-dot');
-    dot.style.background = isAll ? 'var(--accent)' : '';
-    dot.style.borderColor = isAll ? 'var(--accent)' : '';
+    dot.classList.toggle('checked', isAll);
+    dot.classList.toggle('partial', isPartial);
   }
 
   async function downloadSelected() {
@@ -807,8 +819,8 @@
     grid.innerHTML = list.map((url, i) => `
       <div class="photo-card" draggable="true" data-url="${url}" data-index="${i}" style="position:relative">
         <label style="position:absolute;top:8px;left:8px;z-index:10;cursor:pointer">
-          <input type="checkbox" class="photo-select" data-url="${url}" style="display:none" onchange="updateSelectAll()" />
-          <div class="select-dot" onclick="event.stopPropagation()"></div>
+          <input type="checkbox" class="photo-select" data-url="${url}" style="display:none" onchange="updateSelectAll(); this.parentElement.querySelector('.select-dot').classList.toggle('checked', this.checked)" />
+          <div class="select-dot" onclick="this.previousElementSibling.click()"></div>
         </label>
         <img src="${url}" loading="lazy" />
         <div class="photo-actions">
