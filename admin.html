@@ -266,13 +266,6 @@
           <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" stroke="currentColor" stroke-width="1.8"/>
         </svg>
       </button>
-      <button onclick="downloadAll()" id="downloadBtn" style="background:rgba(255,255,255,0.05);border:1px solid var(--border);color:var(--muted);font-size:13px;padding:10px 14px;white-space:nowrap" title="Baixar todas as fotos">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" style="display:block">
-          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-          <polyline points="7 10 12 15 17 10" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
-          <line x1="12" y1="15" x2="12" y2="3" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
-        </svg>
-      </button>
       <button id="pauseBtn" onclick="togglePause()" style="background:rgba(250,204,21,0.1);border:1px solid rgba(250,204,21,0.3);color:#facc15;font-size:13px;padding:10px 16px;white-space:nowrap">
         <svg width="13" height="13" viewBox="0 0 13 13" fill="none" style="display:inline;vertical-align:middle;margin-right:4px"><rect x="2" y="1.5" width="3.5" height="10" rx="1" fill="currentColor"/><rect x="7.5" y="1.5" width="3.5" height="10" rx="1" fill="currentColor"/></svg>
         <span id="pauseLabel">Pausar totem</span>
@@ -353,7 +346,8 @@
   </div>
   <div id="select-all-row" style="display:none;align-items:center;justify-content:space-between;margin-bottom:10px;gap:8px">
     <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;color:var(--muted)">
-      <input type="checkbox" id="select-all-cb" onchange="toggleSelectAll(this.checked)" style="width:16px;height:16px;cursor:pointer" />
+      <input type="checkbox" id="select-all-cb" onchange="toggleSelectAll(this.checked)" style="display:none" />
+      <div id="select-all-dot" onclick="document.getElementById('select-all-cb').click()" class="select-dot"></div>
       Selecionar todas
     </label>
     <button onclick="downloadSelected()" style="background:rgba(255,255,255,0.05);border:1px solid var(--border);color:var(--text);font-size:12px;padding:7px 14px;border-radius:8px;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;font-weight:600;display:flex;align-items:center;gap:6px">
@@ -572,12 +566,19 @@
 
   function toggleSelectAll(checked) {
     document.querySelectorAll('.photo-select').forEach(cb => cb.checked = checked);
+    const dot = document.getElementById('select-all-dot');
+    if (checked) dot.style.background = 'var(--accent)', dot.style.borderColor = 'var(--accent)';
+    else dot.style.background = '', dot.style.borderColor = '';
   }
 
   function updateSelectAll() {
     const all = document.querySelectorAll('.photo-select');
     const checked = document.querySelectorAll('.photo-select:checked');
-    document.getElementById('select-all-cb').checked = all.length === checked.length;
+    const isAll = all.length === checked.length && all.length > 0;
+    document.getElementById('select-all-cb').checked = isAll;
+    const dot = document.getElementById('select-all-dot');
+    dot.style.background = isAll ? 'var(--accent)' : '';
+    dot.style.borderColor = isAll ? 'var(--accent)' : '';
   }
 
   async function downloadSelected() {
