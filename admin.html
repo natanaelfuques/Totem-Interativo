@@ -353,9 +353,9 @@
     <span class="badge green" id="approved-count">0</span>
   </div>
   <div id="select-all-row" style="display:none;align-items:center;justify-content:space-between;margin-bottom:10px;gap:8px">
-    <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;color:var(--muted)">
-      <input type="checkbox" id="select-all-cb" onchange="toggleSelectAll(this.checked)" style="display:none" />
-      <div id="select-all-dot" onclick="var cb=document.getElementById('select-all-cb');cb.checked=!cb.checked;toggleSelectAll(cb.checked)" class="select-dot"></div>
+    <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;color:var(--muted)" onclick="var cb=document.getElementById('select-all-cb');cb.checked=!cb.checked;toggleSelectAll(cb.checked)">
+      <input type="checkbox" id="select-all-cb" style="display:none" />
+      <div id="select-all-dot" class="select-dot"></div>
       Selecionar todas
     </label>
     <button onclick="downloadSelected()" style="background:rgba(255,255,255,0.05);border:1px solid var(--border);color:var(--text);font-size:12px;padding:7px 14px;border-radius:8px;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;font-weight:600;display:flex;align-items:center;gap:6px">
@@ -818,9 +818,9 @@
     document.getElementById('select-all-cb').checked = false;
     grid.innerHTML = list.map((url, i) => `
       <div class="photo-card" draggable="true" data-url="${url}" data-index="${i}" style="position:relative">
-        <label style="position:absolute;top:8px;left:8px;z-index:10;cursor:pointer">
-          <input type="checkbox" class="photo-select" data-url="${url}" style="display:none" onchange="updateSelectAll(); this.parentElement.querySelector('.select-dot').classList.toggle('checked', this.checked)" />
-          <div class="select-dot" onclick="this.previousElementSibling.click()"></div>
+        <label style="position:absolute;top:8px;left:8px;z-index:10;cursor:pointer" onclick="var cb=this.querySelector('.photo-select');cb.checked=!cb.checked;cb.dispatchEvent(new Event('change'))">
+          <input type="checkbox" class="photo-select" data-url="${url}" style="display:none" onchange="updateSelectAll(); this.closest('label').querySelector('.select-dot').classList.toggle('checked', this.checked)" />
+          <div class="select-dot"></div>
         </label>
         <img src="${url}" loading="lazy" />
         <div class="photo-actions">
