@@ -621,6 +621,8 @@
     btn.disabled = false;
     btn.style.color = '';
   }
+
+  async function unwhitelistIP(ip) {
     await fetch(`/api/admin?pwd=${pwd}&action=unwhitelist&url=${encodeURIComponent(ip)}`, { method: 'POST' });
     loadPhotos();
   }
