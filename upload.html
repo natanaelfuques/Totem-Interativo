@@ -222,7 +222,12 @@
       const toast = document.createElement('div');
       toast.className = 'toast';
       toast.innerHTML = `
-        <div class="toast-icon">⏳</div>
+        <div style="width:56px;height:56px;border-radius:16px;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.3);display:flex;align-items:center;justify-content:center;margin:0 auto 12px">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
+            <circle cx="12" cy="12" r="9" stroke="#ef4444" stroke-width="1.8"/>
+            <path d="M12 7v5M12 15.5v.5" stroke="#ef4444" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+        </div>
         <h3>Limite atingido</h3>
         <p>Você já enviou muitas fotos.<br>Tente novamente mais tarde.</p>
       `;
