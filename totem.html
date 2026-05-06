@@ -320,6 +320,11 @@
       const wasPaused = paused;
       paused = !!data.paused;
 
+      // Atualiza nome do evento se mudou
+      if (data.eventName) {
+        document.getElementById('event-name').textContent = data.eventName;
+      }
+
       // Atualiza duração do slide se mudou
       if (data.slideDuration && data.slideDuration !== CONFIG.slideDuration) {
         CONFIG.slideDuration = data.slideDuration;

@@ -345,6 +345,11 @@
     </div>
 
     <div style="display:flex;flex-direction:column;gap:16px">
+
+      <div style="background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:12px;padding:16px">
+        <div style="font-size:13px;font-weight:600;margin-bottom:12px;color:var(--text)">Nome do evento</div>
+        <input id="event_name" type="text" maxlength="50" placeholder="Totem Interativo" style="width:100%;padding:8px;background:rgba(255,255,255,0.05);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:14px" />
+      </div>
       <div style="background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:12px;padding:16px">
         <div style="font-size:13px;font-weight:600;margin-bottom:12px;color:var(--text)">Faixa 1</div>
         <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
@@ -554,6 +559,7 @@
         document.getElementById('t3_limit').value = data.rules.t3_limit ?? 15;
         document.getElementById('t3_ttl').value = data.rules.t3_ttl ?? 720;
         document.getElementById('slide_duration').value = data.rules.slide_duration ?? 5;
+        document.getElementById('event_name').value = data.rules.event_name ?? '';
       } else {
         document.getElementById('t1_limit').value = 5;
         document.getElementById('t1_ttl').value = 10;
@@ -562,6 +568,7 @@
         document.getElementById('t3_limit').value = 15;
         document.getElementById('t3_ttl').value = 720;
         document.getElementById('slide_duration').value = 5;
+        document.getElementById('event_name').value = '';
       }
     } catch {}
   }
@@ -579,6 +586,7 @@
       t3_limit: Number(document.getElementById('t3_limit').value),
       t3_ttl:   Number(document.getElementById('t3_ttl').value),
       slide_duration: Number(document.getElementById('slide_duration').value),
+      event_name: document.getElementById('event_name').value.trim() || 'Totem Interativo',
     };
     await fetch(`/api/admin?pwd=${pwd}&action=save_rules`, {
       method: 'POST',
