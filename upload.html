@@ -111,7 +111,7 @@
           <circle cx="27" cy="14" r="1.5" fill="#ff3c6e"/>
         </svg>
       </div>
-      <h1>Sua foto no totem!</h1>
+      <h1>Sua foto no tela!</h1>
       <p>Escolha uma foto da galeria e ela vai aparecer na tela do evento!</p>
       <img id="preview" alt="Preview" />
       <div class="upload-area" id="uploadArea">
@@ -127,7 +127,7 @@
         <svg id="sendIcon" width="18" height="18" viewBox="0 0 18 18" fill="none">
           <path d="M2 9h14M10 4l5 5-5 5" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
-        <span id="sendLabel">Enviar para o totem</span>
+        <span id="sendLabel">Enviar para a tela</span>
       </button>
       <div class="progress" id="progressWrap"><div class="progress-bar" id="progressBar"></div></div>
       <div class="status" id="status"></div>
@@ -139,10 +139,10 @@
         </svg>
       </div>
       <h1>Foto enviada!</h1>
-      <p id="success-msg">Sua foto foi adicionada ao totem. Aproveite o evento!</p>
+      <p id="success-msg">Sua foto foi adicionada ao tela. Aproveite o evento!</p>
       <img class="sent-preview" id="sent-preview" alt="Sua foto" />
       <button class="btn-remove-req" id="removeBtn" onclick="removePhoto()">
-        Remover minha foto do totem
+        Remover minha foto do tela
       </button>
       <div class="status" id="remove-status"></div>
     </div>
@@ -197,12 +197,12 @@
             document.getElementById('sent-preview').src = uploadedUrl;
             document.getElementById('success-msg').textContent = data.moderation
               ? 'Sua foto foi enviada e será exibida após aprovação.'
-              : 'Sua foto foi adicionada ao totem. Aproveite o evento!';
+              : 'Sua foto foi adicionada ao tela. Aproveite o evento!';
           }, 300);
         } else if (data.limitReached) {
           showLimitToast();
           sendBtn.disabled = false;
-          sendLabel.textContent = 'Enviar para o totem';
+          sendLabel.textContent = 'Enviar para a tela';
           sendIcon.style.display = 'inline';
           progressWrap.style.display = 'none';
           return;
@@ -212,7 +212,7 @@
         status.className = 'status error';
         status.textContent = '✕ ' + err.message;
         sendBtn.disabled = false;
-        sendLabel.textContent = 'Enviar para o totem';
+        sendLabel.textContent = 'Enviar para a tela';
         sendIcon.style.display = 'inline';
       }
     }
@@ -246,10 +246,10 @@
         await fetch(`/api/remove?url=${encodeURIComponent(uploadedUrl)}`, { method: 'POST' });
         btn.textContent = 'Foto removida ✓';
         document.getElementById('sent-preview').style.opacity = '0.3';
-        document.getElementById('remove-status').textContent = 'Sua foto foi removida do totem.';
+        document.getElementById('remove-status').textContent = 'Sua foto foi removida do tela.';
       } catch {
         btn.disabled = false;
-        btn.textContent = 'Remover minha foto do totem';
+        btn.textContent = 'Remover minha foto do tela';
       }
     }
   </script>
