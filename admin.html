@@ -149,12 +149,6 @@
         overflow: hidden;
         text-overflow: ellipsis;
       }
-
-      .header-actions .btn-totem svg,
-      .header-actions #pauseBtn svg,
-      .header-actions .btn-clear svg {
-        display: none !important;
-      }
     }
 
     .section-title {
@@ -333,14 +327,10 @@
         <svg width="13" height="13" viewBox="0 0 14 14" fill="none" style="flex-shrink:0"><rect x="1" y="1" width="12" height="12" rx="2" stroke="currentColor" stroke-width="1.4"/><path d="M5 7h4M7 5v4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
         Ver totem
       </a>
-      <button id="pauseBtn" onclick="togglePause()" style="background:rgba(250,204,21,0.1);border:1px solid rgba(250,204,21,0.3);color:#facc15;font-size:13px;padding:10px 16px;white-space:nowrap;display:inline-flex;align-items:center;justify-content:center;gap:4px">
-        <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><rect x="2" y="1.5" width="3.5" height="10" rx="1" fill="currentColor"/><rect x="7.5" y="1.5" width="3.5" height="10" rx="1" fill="currentColor"/></svg>
+      <button id="pauseBtn" onclick="togglePause()" style="background:rgba(250,204,21,0.1);border:1px solid rgba(250,204,21,0.3);color:#facc15;font-size:13px;padding:10px 16px;white-space:nowrap;display:inline-flex;align-items:center;justify-content:center;">
         <span id="pauseLabel">Pausar totem</span>
       </button>
-      <button class="btn-clear" onclick="clearAll()" style="display:inline-flex;align-items:center;justify-content:center;gap:4px">
-        <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-          <path d="M2 4h10M5 4V2.5h4V4M11 4l-.7 8H3.7L3 4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
-        </svg>
+      <button class="btn-clear" onclick="clearAll()" style="display:inline-flex;align-items:center;justify-content:center;">
         Limpar tudo
       </button>
     </div>
@@ -845,12 +835,10 @@
       btn.style.background = 'rgba(250,204,21,0.25)';
       btn.style.borderColor = 'rgba(250,204,21,0.6)';
       label.textContent = 'Retomar totem';
-      btn.querySelector('svg').innerHTML = '<polygon points="3,1.5 12,6.5 3,11.5" fill="currentColor"/>';
     } else {
       btn.style.background = 'rgba(250,204,21,0.1)';
       btn.style.borderColor = 'rgba(250,204,21,0.3)';
       label.textContent = 'Pausar totem';
-      btn.querySelector('svg').innerHTML = '<rect x="2" y="1.5" width="3.5" height="10" rx="1" fill="currentColor"/><rect x="7.5" y="1.5" width="3.5" height="10" rx="1" fill="currentColor"/>';
     }
   }
 
