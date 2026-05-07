@@ -111,7 +111,7 @@
           <circle cx="27" cy="14" r="1.5" fill="#ff3c6e"/>
         </svg>
       </div>
-      <h1>Sua foto no tela!</h1>
+      <h1>Sua foto na tela!</h1>
       <p>Escolha uma foto da galeria e ela vai aparecer na tela do evento!</p>
       <img id="preview" alt="Preview" />
       <div class="upload-area" id="uploadArea">
@@ -139,10 +139,10 @@
         </svg>
       </div>
       <h1>Foto enviada!</h1>
-      <p id="success-msg">Sua foto foi adicionada ao tela. Aproveite o evento!</p>
+      <p id="success-msg">Sua foto foi adicionada à tela. Aproveite o evento!</p>
       <img class="sent-preview" id="sent-preview" alt="Sua foto" />
       <button class="btn-remove-req" id="removeBtn" onclick="removePhoto()">
-        Remover minha foto do tela
+        Remover minha foto da tela
       </button>
       <div class="status" id="remove-status"></div>
     </div>
@@ -197,7 +197,7 @@
             document.getElementById('sent-preview').src = uploadedUrl;
             document.getElementById('success-msg').textContent = data.moderation
               ? 'Sua foto foi enviada e será exibida após aprovação.'
-              : 'Sua foto foi adicionada ao tela. Aproveite o evento!';
+              : 'Sua foto foi adicionada à tela. Aproveite o evento!';
           }, 300);
         } else if (data.limitReached) {
           showLimitToast();
@@ -246,10 +246,10 @@
         await fetch(`/api/remove?url=${encodeURIComponent(uploadedUrl)}`, { method: 'POST' });
         btn.textContent = 'Foto removida ✓';
         document.getElementById('sent-preview').style.opacity = '0.3';
-        document.getElementById('remove-status').textContent = 'Sua foto foi removida do tela.';
+        document.getElementById('remove-status').textContent = 'Sua foto foi removida da tela.';
       } catch {
         btn.disabled = false;
-        btn.textContent = 'Remover minha foto do tela';
+        btn.textContent = 'Remover minha foto da tela';
       }
     }
   </script>
