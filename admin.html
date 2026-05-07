@@ -103,6 +103,60 @@
 
     .btn-clear { font-size: 13px; padding: 10px 16px; white-space: nowrap; }
 
+    .header-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .header-actions .btn-totem,
+    .header-actions #pauseBtn,
+    .header-actions .btn-clear {
+      flex: 1;
+      justify-content: center;
+      min-width: 0;
+    }
+
+    .header-actions .btn-settings {
+      flex-shrink: 0;
+    }
+
+    @media (max-width: 480px) {
+      body { padding: 20px 16px; }
+      h1 { font-size: 18px; }
+      .subtitle { margin-bottom: 20px; }
+      .header-row { gap: 10px; }
+
+      .header-actions {
+        width: 100%;
+        display: grid;
+        grid-template-columns: auto 1fr 1fr 1fr;
+        gap: 6px;
+      }
+
+      .header-actions .btn-settings {
+        grid-column: 1;
+        padding: 10px 12px;
+      }
+
+      .header-actions .btn-totem,
+      .header-actions #pauseBtn,
+      .header-actions .btn-clear {
+        font-size: 12px;
+        padding: 10px 6px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      .header-actions .btn-totem svg,
+      .header-actions #pauseBtn svg,
+      .header-actions .btn-clear svg {
+        display: none !important;
+      }
+    }
+
     .section-title {
       font-family: 'Outfit', sans-serif;
       font-size: 16px;
@@ -268,19 +322,23 @@
       <h1>Moderação de Fotos</h1>
       <div class="subtitle">Gerencie as fotos do totem</div>
     </div>
-    <div style="display:flex;gap:8px;flex-wrap:wrap">
-      <button onclick="openSettings()" style="background:rgba(255,255,255,0.05);border:1px solid var(--border);color:var(--muted);font-size:13px;padding:10px 14px;white-space:nowrap" title="Configurações">
+    <div class="header-actions">
+      <button class="btn-settings" onclick="openSettings()" style="background:rgba(255,255,255,0.05);border:1px solid var(--border);color:var(--muted);font-size:13px;padding:10px 14px;" title="Configurações">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" style="display:block">
           <path d="M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6z" stroke="currentColor" stroke-width="1.8"/>
           <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" stroke="currentColor" stroke-width="1.8"/>
         </svg>
       </button>
-      <button id="pauseBtn" onclick="togglePause()" style="background:rgba(250,204,21,0.1);border:1px solid rgba(250,204,21,0.3);color:#facc15;font-size:13px;padding:10px 16px;white-space:nowrap">
-        <svg width="13" height="13" viewBox="0 0 13 13" fill="none" style="display:inline;vertical-align:middle;margin-right:4px"><rect x="2" y="1.5" width="3.5" height="10" rx="1" fill="currentColor"/><rect x="7.5" y="1.5" width="3.5" height="10" rx="1" fill="currentColor"/></svg>
+      <a href="https://totem-interativo-navy.vercel.app/totem.html" target="_blank" class="btn-totem" style="display:inline-flex;align-items:center;gap:5px;padding:10px 16px;background:rgba(255,255,255,0.05);border:1px solid var(--border);border-radius:10px;color:var(--text);font-size:13px;font-family:'Outfit',sans-serif;font-weight:700;text-decoration:none;white-space:nowrap;transition:all 0.2s" onmouseover="this.style.opacity='0.85';this.style.transform='translateY(-1px)'" onmouseout="this.style.opacity='1';this.style.transform='translateY(0)'">
+        <svg width="13" height="13" viewBox="0 0 14 14" fill="none" style="flex-shrink:0"><rect x="1" y="1" width="12" height="12" rx="2" stroke="currentColor" stroke-width="1.4"/><path d="M5 7h4M7 5v4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+        Ver totem
+      </a>
+      <button id="pauseBtn" onclick="togglePause()" style="background:rgba(250,204,21,0.1);border:1px solid rgba(250,204,21,0.3);color:#facc15;font-size:13px;padding:10px 16px;white-space:nowrap;display:inline-flex;align-items:center;justify-content:center;gap:4px">
+        <svg width="13" height="13" viewBox="0 0 13 13" fill="none"><rect x="2" y="1.5" width="3.5" height="10" rx="1" fill="currentColor"/><rect x="7.5" y="1.5" width="3.5" height="10" rx="1" fill="currentColor"/></svg>
         <span id="pauseLabel">Pausar totem</span>
       </button>
-      <button class="btn-clear" onclick="clearAll()">
-        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" style="display:inline;vertical-align:middle;margin-right:4px">
+      <button class="btn-clear" onclick="clearAll()" style="display:inline-flex;align-items:center;justify-content:center;gap:4px">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
           <path d="M2 4h10M5 4V2.5h4V4M11 4l-.7 8H3.7L3 4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
         Limpar tudo
